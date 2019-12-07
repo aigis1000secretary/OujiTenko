@@ -1,0 +1,12 @@
+
+*.lnk
+*.png
+
+AigisTools/
+
+*/.vscode/
+*/.vs/
+*/*/bin/
+*/*/obj/
+
+charaData/Resources/
