@@ -14,7 +14,7 @@ namespace iconArr
         public static string[] GetIconHash(string filePath)
         {
             //if (resfile.IndexOf("エリザベス_王女【七つの大罪】") == -1) continue;
-            Console.WriteLine(filePath);
+            //Console.WriteLine(filePath);
             string extension = Path.GetExtension(filePath);
 
             // analysisw raw icon image
@@ -65,7 +65,7 @@ namespace iconArr
             string dHash = ImageComparer.GetImageDHashCode(ref iconImg);
             string pHash = ImageComparer.GetImagePHashCode(ref iconImg);
             iconImg.Dispose();
-            return new string[] { aHash, dHash, pHash, };
+            return new string[] { aHash, dHash, pHash };
         }
 
         private static void PngToBmpImage(ref Bitmap bitImg)

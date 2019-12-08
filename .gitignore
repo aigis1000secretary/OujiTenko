@@ -6,6 +6,7 @@ AigisTools/
 
 */.vscode/
 */.vs/
+*/node_modules/
 */*/bin/
 */*/obj/
 

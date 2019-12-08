@@ -53,9 +53,12 @@ String.prototype.tableToArray = function () {
                 // split single Cell body
                 let cellBody = td.exec(columnBody)[0];
                 let cellStyle = /<t[dh][\s\S]*?>/.exec(cellBody)[0]
-                // let cellText = cellBody.replace(/<t[dh][\s\S]*?>/, "").replace(/<\/t[dh]>/, "");
-                // let cellText = cellBody.replace(/<[\s\S]*?>/g, "");
-                let cellText = cellBody.replace(/<[\/]?[ta][\s\S]*?>/g, "").replace(/<[\s\S]*?\"|\"[\s\S]*?>/g, "");
+                let cellText = cellBody
+                // cellText = cellText.replace(/<t[dh][\s\S]*?>/, "");                
+                // cellText = cellText.replace(/<\/t[dh]>/, "");
+                cellText = cellText.replace(/<[\s\S]*?>/g, "");
+                // cellText = cellText.replace(/<[\/]?[ta][\s\S]*?>/g, "");
+                // cellText = cellText.replace(/<[\s\S]*?\"|\"[\s\S]*?>/g, "");
                 columnBody = columnBody.replace(td, "");
 
                 // set cell text
@@ -107,11 +110,29 @@ let iconCrawler = async function (charaData) {
     let $ = cheerio.load(html, { decodeEntities: false }); // 載入 body
     $("table").each(function (i, iElem) {
         let tableHtml = $(this).html().replace(/<br>/g, "");
-        if (tableHtml.indexOf("アイコン") != -1 && tableHtml.indexOf("ドット絵") != -1 && tableHtml.indexOf("<img" != -1)) // found some img in table
+        if (tableHtml.indexOf("ボーナス") != -1 && tableHtml.indexOf("HP") != -1) // found some img in table
         {
             let table = tableHtml.tableToArray();
             // console.table(table);
-            for (let i in table) {
+
+            let iName, iClass, temp;
+            let nameList = [], classList = [];
+            let row = table[0];
+
+            for (let i = 0; i < row.length; ++i) {
+                if (row[i] == "名前") iName = i;
+                if (row[i] == "クラス") iClass = i;
+            }
+            for (let i = 0; i < table.length; ++i) {
+                temp = table[i][iName];
+                if (temp != "名前" && nameList.indexOf(temp) == -1) nameList.push(temp);
+                temp = table[i][iClass];
+                if (temp != "クラス" && temp.indexOf("覚醒") == -1 && classList.indexOf(temp) == -1) classList.push(temp);
+            }
+            temp = nameList.join(",") + "," + classList.join(",");
+            console.log(temp + "\n");
+
+            /*for (let i in table) {
                 if (table[i][0] != "アイコン") { continue; }    // get icon row
                 let row = table[i];
 
@@ -149,7 +170,7 @@ let iconCrawler = async function (charaData) {
                             console.log(pageUrl + "\n" + error);
                         });
                 }
-            }
+            }//*/
         }
     })
 }
