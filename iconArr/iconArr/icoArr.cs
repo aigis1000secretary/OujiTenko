@@ -34,6 +34,7 @@ namespace iconArr
                     // get ID / type / name
                     string filename = Path.GetFileNameWithoutExtension(path);
                     if (filename == "altx") continue;
+                    Console.WriteLine(path);
 
                     string[] data = filename.Split('_');
                     string charaId = data[0];
@@ -179,7 +180,7 @@ namespace iconArr
 
             string path = (string)dataGridView.Rows[rowIndex].Cells[7].Value;
             if (this.iconBox.Image != null) this.iconBox.Image.Dispose();
-            this.iconBox.Image = new Bitmap(path);
+            if (path != null) this.iconBox.Image = new Bitmap(path);
 
             //string text = (string)dataGridView.Rows[rowIndex].Cells[columnIndex].Value;
             //if (text != "") Clipboard.SetData(DataFormats.Text, @"https://wikiwiki.jp/aigiszuki/" + text);
