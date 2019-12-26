@@ -1,0 +1,3 @@
+http://millenniumwaraigis.wikia.com/wiki/User_blog:Lzlis/AigisTools
+抓寢三的文本do get_file.lua prev03.aar
+必須先安裝Visual C++ Redistributable for Visual Studio 2015

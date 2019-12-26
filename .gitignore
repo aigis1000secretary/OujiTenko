@@ -2,12 +2,12 @@
 *.lnk
 *.png
 
-AigisTools/
-
 */.vscode/
 */.vs/
 */node_modules/
 */*/bin/
 */*/obj/
 
+AigisTools/Data/Cache
+AigisTools/out
 charaData/Resources/
