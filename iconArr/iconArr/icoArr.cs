@@ -116,31 +116,7 @@ namespace iconArr
                 ClassList.Add(datals);
             }
         }
-        //private void GetHashListFromCsv()
-        //{
-        //    string csv = @".\HashList.txt";
-        //    StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
-        //    string s;
-        //    while ((s = sr.ReadLine()) != null)
-        //    {
-        //        string[] datals = s.Trim().Split(',');
-        //        if (datals[0] == "") continue;
-
-        //        HashList.Add(datals);
-        //    }
-        //}
-
-        private ArrayList GetDirList(string dir)
-        {
-            ArrayList result = new ArrayList();
-
-            foreach (string path in Directory.GetDirectories(dir)) { result.AddRange(GetDirList(path)); }
-            foreach (string file in Directory.GetFiles(dir)) { result.Add(file); }
-
-            return result;
-        }
-
-        private void DataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void OutputHashList()
         {
             try
             {
@@ -173,6 +149,21 @@ namespace iconArr
             }
         }
 
+        private ArrayList GetDirList(string dir)
+        {
+            ArrayList result = new ArrayList();
+
+            foreach (string path in Directory.GetDirectories(dir)) { result.AddRange(GetDirList(path)); }
+            foreach (string file in Directory.GetFiles(dir)) { result.Add(file); }
+
+            return result;
+        }
+
+        private void DataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            OutputHashList();
+        }
+
         private void DataGridView_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
             int rowIndex = e.RowIndex;
@@ -190,6 +181,11 @@ namespace iconArr
         private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.Value != null) e.Value = ((string)e.Value).Trim().Replace("	", "");
+        }
+
+        private void icoArr_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            OutputHashList();
         }
     }
 }
