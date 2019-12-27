@@ -1,4 +1,4 @@
-001,Character,王子【通常】,王子
+﻿001,Character,王子【通常】,王子
 002,Character,一般兵A【弓】,下級アーチャー
 003,Character,王国重歩兵ラセル,下級ヘビーアーマー
 004,Character,山賊手下A,下級バンデット
@@ -929,7 +929,7 @@
 944,Character,振袖の金竜姫エルドラ,ドラゴンプリンセス
 945,Character,晴着の看板娘ジュノン,ローグ
 946,Character,破魔の森番フウカ,レンジャー
-950,Character,UNKNOWN,UNKNOWN
+950,Character,王子【四神】,王子【四神】
 951,NPC,---,---
 952,Seirei,祝福金聖霊ディライト,---
 953,Token,魔王の影,---

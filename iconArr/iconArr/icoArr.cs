@@ -33,7 +33,8 @@ namespace iconArr
                 {
                     // get ID / type / name
                     string filename = Path.GetFileNameWithoutExtension(path);
-                    if (filename == "altx") continue;
+                    string extension = Path.GetExtension(path);
+                    if (filename == "altx" || extension.ToLower() != ".png") continue;
                     Console.WriteLine(path);
 
                     string[] data = filename.Split('_');
