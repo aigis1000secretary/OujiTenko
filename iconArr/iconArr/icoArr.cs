@@ -8,12 +8,14 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace iconArr
 {
     public partial class icoArr : Form
     {
+        string resource = @".\Resources";
         public icoArr()
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -23,18 +25,17 @@ namespace iconArr
             this.ResumeLayout(false);
 
             GetIDListFromCsv();
+            GetIDListFromCsv2();
             GetClassListFromCsv();
 
             {
                 // get all new icon list & hash
-                string resource = @".\Resources";
                 ArrayList dir = GetDirList(resource);
                 foreach (string path in dir)
                 {
                     // get ID / type / name
                     string filename = Path.GetFileNameWithoutExtension(path);
-                    string extension = Path.GetExtension(path);
-                    if (filename == "altx" || extension.ToLower() != ".png") continue;
+                    if (filename == "altx" || filename == "files") continue;
                     Console.WriteLine(path);
 
                     string[] data = filename.Split('_');
@@ -104,6 +105,47 @@ namespace iconArr
                 IDList[id] = datals;
             }
         }
+
+        private void GetIDListFromCsv2()
+        {
+            string csv = resource + @".\cards.txt";
+            StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
+            string s;
+            string datals = "";
+            while ((s = sr.ReadLine()) != null)
+            {
+                if (s.IndexOf("_name") != -1)
+                {
+                    s = Regex.Replace(s, @"\s+", ",");
+                    datals += s + "\n";
+                    continue;
+                }
+                else
+                {
+                    Match match;
+                    while ((match = Regex.Match(s, @"\s-?[\dn.]+")).Success)
+                    {
+                        s = s.Replace(match.Value, match.Value.Replace(" ", ","));
+                    }
+                    s = Regex.Replace(s, @"\s+,", ",");
+                    datals += s + "\n";
+                    continue;
+                }
+            }
+            try
+            {
+                string outCsv = @".\cards.csv";
+                StreamWriter sw = new StreamWriter(outCsv, false, System.Text.Encoding.UTF8);
+                sw.Write(datals);
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+
         private void GetClassListFromCsv()
         {
             string csv = @".\ClassList.txt";
