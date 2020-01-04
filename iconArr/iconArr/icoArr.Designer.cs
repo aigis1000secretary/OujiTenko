@@ -63,7 +63,7 @@
             this.Controls.Add(this.dataGridView);
             this.Name = "icoArr";
             this.Text = "icoArr";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.icoArr_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IcoArr_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.iconBox)).EndInit();
             this.ResumeLayout(false);

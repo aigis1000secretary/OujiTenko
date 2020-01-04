@@ -24,9 +24,8 @@ namespace iconArr
             InitializeDataGridView();
             this.ResumeLayout(false);
 
-            GetIDListFromCsv();
-            //GetIDListFromCsv2();
-            GetClassListFromCsv();
+            GetIDListFromRaw();
+            GetClassListFromRaw();
 
             {
                 // get all new icon list & hash
@@ -39,26 +38,59 @@ namespace iconArr
                     if (filename == "altx" || extension != ".png") continue;
                     Console.WriteLine(path);
 
+                    // get id data
                     string[] data = filename.Split('_');
-                    string charaId = data[0];
+                    int id = Int32.Parse(data[0]);
+                    int classType =
+                        (path.IndexOf("00.aar") != -1) ? 0 :  // normal or CC
+                        (path.IndexOf("01.aar") != -1) ? 1 :  // AW 1
+                        (path.IndexOf("02.aar") != -1) ? 2 :  // AW 2A
+                        (path.IndexOf("03.aar") != -1) ? 3 : -1;  // AW 2B
 
-                    // get chara type/name/base class
-                    int i = Int32.Parse(charaId);
-                    data = IDList[i];
-                    string charaName = (data != null) ? data[0] : "UNKNOWN";
-                    string charaClass = (data != null) ? data[1] : "UNKNOWN";
-                    string charaType = (data != null) ? data[2] : "UNKNOWN";
+                    // get chara name/baseClass
+                    string charaName = "Name";
+                    int charaClassID = -1;
+                    if ((data = IDList[id]) != null) //  { name, initClassID }
+                    {
+                        charaName = data[0];
+                        charaClassID = Int32.Parse(data[1]);
+                    }
 
-                    // get aw class
-                    string pathIndex = path.Replace(resource + @"\ico_", "").Substring(0, 2);
-                    int pIndex = Int32.Parse(pathIndex);
-                    foreach (string[] classData in ClassList)
-                    { if (classData[0] == charaClass && classData[pIndex] != null) charaClass = classData[pIndex]; }
+                    // get true class id/name
+                    string charaClass = "Class";
+                    //if (id == 539) Console.ReadLine();
+                    //Console.WriteLine(classType + ", " + data[0]);
+                    data = GetClassData(charaClassID);    // { className, jobChange, awakeType1, awakeType2 }
+                    if (classType == 0)
+                    {
+                        // charaClassID = charaClassID;
+                        charaClass = data[0];
+                    }
+                    else if (classType == 1 || classType == 2 || classType == 3)    // aw1~2
+                    {
+                        int ccID;
+                        while ((ccID = Int32.Parse(data[1])) != 0) { charaClassID = ccID; data = GetClassData(ccID); }
+                        if (classType == 1) // aw1
+                        {
+                            // charaClassID = charaClassID;
+                            charaClass = data[0];
+                        }
+                        else if (classType == 2 || classType == 3) // aw2A
+                        {
+                            // charaClassID = charaClassID;
+                            if ((ccID = Int32.Parse(data[classType])) != 0)
+                            {
+                                charaClassID = ccID;
+                                data = GetClassData(ccID);
+                                charaClass = data[0];
+                            }
+                        }
+                    }
 
                     // get new icon Hash
                     string[] hashs = OujiTenko.GetIconHash(path);
 
-                    dataGridView.Rows.Add(new string[] { charaId, charaType, charaName, charaClass, hashs[0], hashs[1], hashs[2], path });
+                    dataGridView.Rows.Add(new string[] { id.ToString("000"), charaName, charaClass, hashs[0], hashs[1], hashs[2], path });
                 }
             }
         }
@@ -72,92 +104,121 @@ namespace iconArr
             DataGridViewTextBoxColumn Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             DataGridViewTextBoxColumn Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             DataGridViewTextBoxColumn Column7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            DataGridViewTextBoxColumn Column8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
 
-            this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8 });
+            this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { Column1, Column2, Column3, Column4, Column5, Column6, Column7 });
             Column1.HeaderText = "ID";
-            Column2.HeaderText = "Type";
-            Column3.HeaderText = "Name";
-            Column4.HeaderText = "Class";
-            Column5.HeaderText = "AHash";
-            Column6.HeaderText = "DHash";
-            Column7.HeaderText = "PHash";
-            Column8.HeaderText = "Path";
+            Column2.HeaderText = "Name";
+            Column3.HeaderText = "Class";
+            Column4.HeaderText = "AHash";
+            Column5.HeaderText = "DHash";
+            Column6.HeaderText = "PHash";
+            Column7.HeaderText = "Path";
         }
 
         private string[][] IDList = new string[1500][];
-        private ArrayList ClassList = new ArrayList();
-        private ArrayList HashList = new ArrayList();
-        private void GetIDListFromCsv()
+        private void GetIDListFromRaw()
         {
-            string csv = @".\IDList.txt";
-            StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
-            string s;
-            while ((s = sr.ReadLine()) != null && s != "")
+            // read file
+            string raw = resource + @".\cards.txt";
+            string csv = @".\cards.csv";
+            try
             {
-                string[] data = s.Trim().Split(',');
-
-                int id = Int32.Parse(data[0]);
-                string name = data[2];
-                string initClassID = data[3];
-                string type = data[1];
-                IDList[id] = new string[] { name, initClassID, type };
-            }
-        }
-
-        private void GetIDListFromCsv2()
-        {
-            string csv = resource + @".\cards.txt";
-            StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
-            string s;
-            //string datals = "";
-            while ((s = sr.ReadLine()) != null && s != "")
-            {
-                Match match;
-                while ((match = Regex.Match(s, @"[\s]+[-\d.A-z,]+")).Success)
+                StreamReader sr = new StreamReader(raw, System.Text.Encoding.UTF8);
+                StreamWriter sw = new StreamWriter(csv, false, System.Text.Encoding.UTF8);
+                string line;
+                while ((line = sr.ReadLine()) != null && line != "")
                 {
-                    string newValue = match.Value.Replace(Regex.Match(match.Value, @"[\s]+,?").Value, ",");
-                    s = s.Replace(match.Value, newValue);
-                }
-                //datals += s + "\n";
+                    line = line.Trim();
+                    // format data
+                    Match match;
+                    while ((match = Regex.Match(line, @"\s+[\d.A-z-,]+")).Success)
+                    {
+                        line = line.Replace(match.Value, match.Value.Replace(Regex.Match(match.Value, @"\s+,?").Value, ","));
+                    }
 
-                if (s.IndexOf("_name") == -1)
-                {
-                    string[] data = s.Split(',');
+                    // write data to csv
+                    sw.WriteLine(line);
 
+                    if (line.IndexOf("ame") != -1) continue;
+                    // put data to array
+                    string[] data = line.Split(',');
+                    //Console.WriteLine(data[1]);
                     int id = Int32.Parse(data[1]);
                     string name = data[0];
                     string initClassID = data[2];
-                    IDList[id] = new string[] { name, initClassID, "" };
+                    IDList[id] = new string[] { name, initClassID };
                 }
+                sr.Close();
+                sw.Close();
             }
-            //try
-            //{
-            //    string outCsv = @".\cards.csv";
-            //    StreamWriter sw = new StreamWriter(outCsv, false, System.Text.Encoding.UTF8);
-            //    sw.Write(datals);
-            //    sw.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.ToString());
-            //}
-        }
-
-
-        private void GetClassListFromCsv()
-        {
-            string csv = @".\ClassList.txt";
-            StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
-            string s;
-            while ((s = sr.ReadLine()) != null)
+            catch (Exception ex)
             {
-                string[] datals = s.Trim().Split(',');
-                if (datals[0] == "") continue;
-
-                ClassList.Add(datals);
+                MessageBox.Show(ex.ToString());
             }
         }
+
+        private Dictionary<int, string[]> ClassList = new Dictionary<int, string[]>();
+        private void GetClassListFromRaw()
+        {
+            // read file
+            string raw = resource + @".\PlayerUnitTable.aar\002_ClassData.atb\ALTB_cldt.txt";
+            string csv = @".\class.csv";
+            try
+            {
+                StreamReader sr = new StreamReader(raw, System.Text.Encoding.UTF8);
+                StreamWriter sw = new StreamWriter(csv, false, System.Text.Encoding.UTF8);
+                string line;
+                while ((line = sr.ReadLine()) != null && line != "")
+                {
+                    line = line.Trim();
+                    // format data
+                    Match match;
+                    while ((match = Regex.Match(line, @"\s\x22\s")).Success)
+                    {
+                        line = Regex.Replace(line, @"\s\x22\s", "\"");
+                    }
+                    line = Regex.Replace(line, @"\s+", ",");
+                    while ((match = Regex.Match(line, @"\x22[^,\x22][^\s\x22]+[,][^\s\x22]+\x22")).Success)
+                    {
+                        line = line.Replace(match.Value, match.Value.Replace(Regex.Match(match.Value, @",").Value, " "));
+                    }
+                    line = Regex.Replace(line, @"\x22", "");
+
+                    // write data to csv
+                    sw.WriteLine(line);
+
+                    if (line.IndexOf("ame") != -1) continue;
+                    // put data to array
+                    string[] data = line.Split(',');
+                    //Console.WriteLine(data[0]);
+                    int id = Int32.Parse(data[0]);
+                    string className = data[1];
+                    string jobChange = data[14];
+                    string awakeType1 = data[34];
+                    string awakeType2 = data[35];
+                    ClassList.Add(id, new string[] { className, jobChange, awakeType1, awakeType2 });
+                }
+                sr.Close();
+                sw.Close();
+                ClassList.Add(0, new string[] { "UNKNOWN", "0", "0", "0" });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+        }
+        private string[] GetClassData(int id)
+        {
+            string[] data;
+            if (ClassList.ContainsKey(id) && (data = ClassList[id]) != null)
+            {
+                return data;
+            }
+            return ClassList[0];
+        }
+
+        //private ArrayList HashList = new ArrayList();
         private void OutputHashList()
         {
             try
@@ -201,6 +262,7 @@ namespace iconArr
             return result;
         }
 
+        // Form event
         private void DataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             OutputHashList();
@@ -211,7 +273,7 @@ namespace iconArr
             int rowIndex = e.RowIndex;
             if (rowIndex == -1) return;
 
-            string path = (string)dataGridView.Rows[rowIndex].Cells[7].Value;
+            string path = (string)dataGridView.Rows[rowIndex].Cells[6].Value;
             if (this.iconBox.Image != null) this.iconBox.Image.Dispose();
             if (path != null) this.iconBox.Image = new Bitmap(path);
 
@@ -222,10 +284,11 @@ namespace iconArr
 
         private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.Value != null) e.Value = ((string)e.Value).Trim().Replace("	", "");
+            //if (e.Value != null) e.Value = ((string)e.Value).Trim().Replace("	", "");
+            if (e.Value != null) e.Value = ((string)e.Value).Trim().Replace("\t", "");
         }
 
-        private void icoArr_FormClosing(object sender, FormClosingEventArgs e)
+        private void IcoArr_FormClosing(object sender, FormClosingEventArgs e)
         {
             OutputHashList();
         }
