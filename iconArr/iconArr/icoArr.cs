@@ -25,7 +25,7 @@ namespace iconArr
             this.ResumeLayout(false);
 
             GetIDListFromCsv();
-            GetIDListFromCsv2();
+            //GetIDListFromCsv2();
             GetClassListFromCsv();
 
             {
@@ -35,7 +35,8 @@ namespace iconArr
                 {
                     // get ID / type / name
                     string filename = Path.GetFileNameWithoutExtension(path);
-                    if (filename == "altx" || filename == "files") continue;
+                    string extension = Path.GetExtension(path);
+                    if (filename == "altx" || extension != ".png") continue;
                     Console.WriteLine(path);
 
                     string[] data = filename.Split('_');
@@ -44,9 +45,9 @@ namespace iconArr
                     // get chara type/name/base class
                     int i = Int32.Parse(charaId);
                     data = IDList[i];
-                    string charaType = (data != null && data.Length > 1) ? data[1] : "---";
-                    string charaName = (data != null && data.Length > 2) ? data[2] : "UNKNOWN";
-                    string charaClass = (data != null && data.Length > 3) ? data[3] : "UNKNOWN";
+                    string charaName = (data != null) ? data[0] : "UNKNOWN";
+                    string charaClass = (data != null) ? data[1] : "UNKNOWN";
+                    string charaType = (data != null) ? data[2] : "UNKNOWN";
 
                     // get aw class
                     string pathIndex = path.Replace(resource + @"\ico_", "").Substring(0, 2);
@@ -92,17 +93,15 @@ namespace iconArr
             string csv = @".\IDList.txt";
             StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
             string s;
-            while ((s = sr.ReadLine()) != null)
+            while ((s = sr.ReadLine()) != null && s != "")
             {
-                string[] datals = s.Trim().Split(',');
+                string[] data = s.Trim().Split(',');
 
-                string index = datals[0];
-                if (index == "") continue;
-
-                int id = Int32.Parse(datals[0]);
-                if (id < 0 || IDList.Length <= id) continue;
-
-                IDList[id] = datals;
+                int id = Int32.Parse(data[0]);
+                string name = data[2];
+                string initClassID = data[3];
+                string type = data[1];
+                IDList[id] = new string[] { name, initClassID, type };
             }
         }
 
@@ -111,38 +110,38 @@ namespace iconArr
             string csv = resource + @".\cards.txt";
             StreamReader sr = new StreamReader(csv, System.Text.Encoding.UTF8);
             string s;
-            string datals = "";
-            while ((s = sr.ReadLine()) != null)
+            //string datals = "";
+            while ((s = sr.ReadLine()) != null && s != "")
             {
-                if (s.IndexOf("_name") != -1)
+                Match match;
+                while ((match = Regex.Match(s, @"[\s]+[-\d.A-z,]+")).Success)
                 {
-                    s = Regex.Replace(s, @"\s+", ",");
-                    datals += s + "\n";
-                    continue;
+                    string newValue = match.Value.Replace(Regex.Match(match.Value, @"[\s]+,?").Value, ",");
+                    s = s.Replace(match.Value, newValue);
                 }
-                else
+                //datals += s + "\n";
+
+                if (s.IndexOf("_name") == -1)
                 {
-                    Match match;
-                    while ((match = Regex.Match(s, @"\s-?[\dn.]+")).Success)
-                    {
-                        s = s.Replace(match.Value, match.Value.Replace(" ", ","));
-                    }
-                    s = Regex.Replace(s, @"\s+,", ",");
-                    datals += s + "\n";
-                    continue;
+                    string[] data = s.Split(',');
+
+                    int id = Int32.Parse(data[1]);
+                    string name = data[0];
+                    string initClassID = data[2];
+                    IDList[id] = new string[] { name, initClassID, "" };
                 }
             }
-            try
-            {
-                string outCsv = @".\cards.csv";
-                StreamWriter sw = new StreamWriter(outCsv, false, System.Text.Encoding.UTF8);
-                sw.Write(datals);
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            //try
+            //{
+            //    string outCsv = @".\cards.csv";
+            //    StreamWriter sw = new StreamWriter(outCsv, false, System.Text.Encoding.UTF8);
+            //    sw.Write(datals);
+            //    sw.Close();
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.ToString());
+            //}
         }
 
 
