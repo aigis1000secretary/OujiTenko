@@ -8,8 +8,8 @@
 */*/bin/
 */*/obj/
 
-AigisTools/Data/Cache
-AigisTools/out
+AigisTools/Data/Cache/
+AigisTools/out/
 AigisTools/working/
 
 charaData/Resources/
