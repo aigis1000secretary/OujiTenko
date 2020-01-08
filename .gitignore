@@ -10,6 +10,8 @@
 
 AigisTools/Data/Cache
 AigisTools/out
+AigisTools/working/
+
 charaData/Resources/
 
 testData/Resources/
