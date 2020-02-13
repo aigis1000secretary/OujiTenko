@@ -55,7 +55,6 @@
       <DependentUpon>icoArr.cs</DependentUpon>
     </Compile>
     <Compile Include="ImageComparer.cs" />
-    <Compile Include="OujiTenko.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="icoArr.resx">

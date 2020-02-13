@@ -1,5 +1,4 @@
-﻿using OujiTenko;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -87,9 +86,15 @@ namespace iconArr
                         }
                     }
 
+                    // analysisw raw icon image
+                    // read icon file data
+                    Bitmap iconImg = new Bitmap(path);
+                    if (extension.ToLower() == ".png") TenkoCore.PngToBmpImage(ref iconImg);
                     // get new icon Hash
-                    string[] hashs = OujiTenko.GetIconHash(path);
+                    string[] hashs = TenkoCore.GetIconHash(ref iconImg);
+                    iconImg.Dispose();
 
+                    // add data to table
                     dataGridView.Rows.Add(new string[] { id.ToString("000"), charaName, charaClass, hashs[0], hashs[1], hashs[2], path });
                 }
             }

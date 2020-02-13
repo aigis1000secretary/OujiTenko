@@ -15,117 +15,13 @@ namespace OujiTenko
 {
     public partial class OujiTenko : Form
     {
-        private readonly object form;
         public OujiTenko()
         {
             InitializeComponent();
-
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
-
-            // read all icon image files
-            string resPath = @".\Resources";
-            ArrayList resList = new ArrayList();
-            // checked folder
-            if (!Directory.Exists(resPath)) { Directory.CreateDirectory(resPath); }
-            if (!Directory.Exists(resPath + @"\bak")) { Directory.CreateDirectory(resPath + @"\bak"); }
-            // get file list
-            foreach (string file in Directory.GetFiles(resPath)) { resList.Add(file); }
-            foreach (string resfile in resList)
-            {
-                // get file string
-                string filename = Path.GetFileNameWithoutExtension(resfile);
-                string extension = Path.GetExtension(resfile);
-                string[] data = filename.Split('_');
-
-                if (data.Length < 3)
-                {
-                    //if (resfile.IndexOf("エリザベス_王女【七つの大罪】") == -1) continue;
-                    Console.WriteLine(resfile);
-
-                    // analysisw raw icon image
-                    // read icon file data
-                    Bitmap iconImg = new Bitmap(resfile);
-                    if (extension.ToLower() == ".png") PngToBmpImage(ref iconImg);
-                    //GrayImage(ref iconImg);
-                    int[,,] iconData = GetRGBData(ref iconImg);
-
-                    // init variable
-                    int width = iconData.GetLength(0);
-                    int height = iconData.GetLength(1);
-                    int cx = (int)(width * 0.8), cy = (int)(height * 0.5);
-
-                    // find icon main range
-                    int edgeT = 0, edgeB = 0, edgeL = 0, edgeR = 0;
-                    for (int i = 0000000000; i < cx; ++i) { edgeL = i; if (!(iconData[i, cy, 0] == 255 && iconData[i, cy, 1] == 255 && iconData[i, cy, 2] == 255)) { break; } }
-                    for (int i = width - 01; i > cx; --i) { edgeR = i; if (!(iconData[i, cy, 0] == 255 && iconData[i, cy, 1] == 255 && iconData[i, cy, 2] == 255)) { break; } }
-                    for (int j = 0000000000; j < cy; ++j) { edgeT = j; if (!(iconData[cx, j, 0] == 255 && iconData[cx, j, 1] == 255 && iconData[cx, j, 2] == 255)) { break; } }
-                    for (int j = height - 1; j > cy; --j) { edgeB = j; if (!(iconData[cx, j, 0] == 255 && iconData[cx, j, 1] == 255 && iconData[cx, j, 2] == 255)) { break; } }
-                    //Console.WriteLine(iconData[cx, 0, 0] + "\t" + iconData[cx, 0, 1] + "\t" + iconData[cx, 0, 2]);
-                    //Console.WriteLine(edgeT + "\t" + edgeB + "\t" + edgeL + "\t" + edgeR + "\t" + (edgeR - edgeL) + "\t" + (edgeB - edgeT) + "\t" + ((float)(edgeR - edgeL) / (float)(edgeB - edgeT)));
-
-                    // split main icon
-                    if (edgeT != 0 || edgeB != height - 1 || edgeL != 0 || edgeR != width - 1)
-                    {
-                        int iconWidth = edgeR - edgeL, iconHeight = edgeB - edgeT;
-                        int[,,] mIconData = new int[iconWidth, iconHeight, 3];
-                        for (int y = 0; y < iconHeight; ++y)
-                        {
-                            for (int x = 0; x < iconWidth; ++x)
-                            {
-                                mIconData[x, y, 0] = iconData[edgeL + x, edgeT + y, 0];
-                                mIconData[x, y, 1] = iconData[edgeL + x, edgeT + y, 1];
-                                mIconData[x, y, 2] = iconData[edgeL + x, edgeT + y, 2];
-                            }
-                        }
-                        iconData = mIconData;
-                        mIconData = null;
-                    }
-                    //ShowImage(SetRGBData(iconData), filename);
-
-                    //// 
-                    SetRGBData(iconData, ref iconImg);
-                    //ScaleImage(ref iconImg);
-                    IconMask(ref iconImg);
-                    string aHash = ImageComparer.GetImageAHashCode(ref iconImg);
-                    string dHash = ImageComparer.GetImageDHashCode(ref iconImg);
-                    string pHash = ImageComparer.GetImagePHashCode(ref iconImg);
-
-                    ((Image)iconImg).Save(resPath + @"\" + filename + "_" + aHash + "@" + dHash + "@" + pHash + ".png");
-                    iconImg.Dispose();
-                }
-            }
-            // memory: 25.5mb
-
-            // move raw file
-            resList.Clear();
-            foreach (string resfile in Directory.GetFiles(resPath))
-            {
-                string filename = Path.GetFileNameWithoutExtension(resfile);
-                string extension = Path.GetExtension(resfile);
-                string[] data = filename.Split('_');
-                if (data.Length < 3)
-                {
-                    // move files
-                    File.Move(resfile, resfile.Replace(filename, @"bak\" + filename));
-                }
-                else
-                {
-                    // read data
-                    //Bitmap iconImg = new Bitmap(resfile);
-                    //int[,,] iconData = GetRGBData(ref iconImg);
-                    //iconImg.Dispose();
-                    string[] hash = data[2].Split('@');
-
-                    if (hash.Length < 3) continue;
-
-                    // filename, data
-                    //resList.Add(new Object[] { filename, iconData });
-                    resList.Add(new string[] { filename, hash[0], hash[1], hash[2] });
-                }
-            }
-            // memory: 33.0mb
-
+            // get hash data
+            GetHashListFromFile();
 
 
             // check screen shot folder
@@ -139,23 +35,216 @@ namespace OujiTenko
             int bgi = ssList.IndexOf(ssPath + @"\bg.png");
             if (bgi == -1) { return; }
 
+
             // start analysis
             // read bg image
             string bgBmpPath = (string)ssList[bgi];
             Bitmap bgBmp = new Bitmap(bgBmpPath);
-            int[,,] bgRgbData = GetRGBData(ref bgBmp);
+            int[,,] bgRgbData = TenkoCore.GetARGBData(ref bgBmp);
             bgBmp.Dispose();
             ssList.RemoveAt(bgi);
             //ShowImage(bgRgbData, "bgRgbData");
 
-            // pick icon row from page
-            ArrayList iconResult = new ArrayList();
-            ArrayList rowInPage = new ArrayList();
             foreach (string pagefile in ssList)
             {
                 if (Path.GetExtension(pagefile).ToLower() != ".png") continue;
                 Console.WriteLine(pagefile);
 
+                // read screen shot image & init data array
+                Bitmap ssImg = new Bitmap(pagefile);
+                int[,,] ssImgData = TenkoCore.GetARGBData(ref ssImg);
+                //bgBmp.Dispose();
+
+                int width = ssImg.Width;
+                int height = ssImg.Height;
+                // clear alpha data
+                for (int j = 0; j < height; ++j)
+                {
+                    for (int i = 0; i < width; ++i)
+                    {
+                        ssImgData[i, j, 3] = -1;
+                    }
+                }
+                // set mask
+                for (int j = 0; j < height; ++j)
+                {
+                    //for (int i = 0; i < width; ++i)
+                    for (int i = 0; i < width * 2 - 2; ++i)
+                    {
+                        //int px = i;
+                        int px = (i < width) ? i : width * 2 - 2 - i;
+                        int py = j;
+                        bool edge = (px == 0 || px == width - 1 || py == 0 || py == height - 1);
+
+                        // if (ssImgData[px, py, 3] != 0) continue;
+
+                        if (Math.Abs(ssImgData[px, py, 0] - bgRgbData[px, py, 0]) < 15 &&
+                            Math.Abs(ssImgData[px, py, 1] - bgRgbData[px, py, 1]) < 15 &&
+                            Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
+                        {
+                            // same color
+                            if (edge || (
+                                ssImgData[px + 1, py, 0] == 0 && ssImgData[px + 1, py, 1] == 0 && ssImgData[px + 1, py, 2] == 0) || (
+                                ssImgData[px - 1, py, 0] == 0 && ssImgData[px - 1, py, 1] == 0 && ssImgData[px - 1, py, 2] == 0) || (
+                                ssImgData[px, py - 1, 0] == 0 && ssImgData[px, py - 1, 1] == 0 && ssImgData[px, py - 1, 2] == 0))
+                            {
+                                //ssImgData[px, py, 0] = 0; ssImgData[px, py, 1] = 0; ssImgData[px, py, 2] = 0;
+
+                                ssImgData[px, py, 3] = 0;
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
+
+                // clear pixel by mask
+                for (int j = 0; j < height; ++j)
+                {
+                    for (int i = 0; i < width; ++i)
+                    {
+                        if (ssImgData[i, j, 3] == 5)
+                        {
+                            ssImgData[i, j, 0] = 255;
+                            ssImgData[i, j, 1] = 0;
+                            ssImgData[i, j, 2] = 0;
+                        }
+                    }
+                }
+
+
+
+
+                //TenkoCore.SetRGBData(ssImgData, ref ssImg);
+                ShowImage(ssImgData, Path.GetFileName(pagefile));
+
+                break;
+            }
+
+
+
+
+
+            return;
+
+            {
+                /*
+                // read all icon image files
+                string resPath = @".\Resources";
+                ArrayList resList = new ArrayList();
+                // checked folder
+                if (!Directory.Exists(resPath)) { Directory.CreateDirectory(resPath); }
+                if (!Directory.Exists(resPath + @"\bak")) { Directory.CreateDirectory(resPath + @"\bak"); }
+                // get file list
+                foreach (string file in Directory.GetFiles(resPath)) { resList.Add(file); }
+                foreach (string resfile in resList)
+                {
+                    // get file string
+                    string filename = Path.GetFileNameWithoutExtension(resfile);
+                    string extension = Path.GetExtension(resfile);
+                    string[] data = filename.Split('_');
+
+                    if (data.Length < 3)
+                    {
+                        //if (resfile.IndexOf("エリザベス_王女【七つの大罪】") == -1) continue;
+                        Console.WriteLine(resfile);
+
+                        // analysisw raw icon image
+                        // read icon file data
+                        Bitmap iconImg = new Bitmap(resfile);
+                        if (extension.ToLower() == ".png") PngToBmpImage(ref iconImg);
+                        //GrayImage(ref iconImg);
+                        int[,,] iconData = GetRGBData(ref iconImg);
+
+                        // init variable
+                        int width = iconData.GetLength(0);
+                        int height = iconData.GetLength(1);
+                        int cx = (int)(width * 0.8), cy = (int)(height * 0.5);
+
+                        // find icon main range
+                        int edgeT = 0, edgeB = 0, edgeL = 0, edgeR = 0;
+                        for (int i = 0000000000; i < cx; ++i) { edgeL = i; if (!(iconData[i, cy, 0] == 255 && iconData[i, cy, 1] == 255 && iconData[i, cy, 2] == 255)) { break; } }
+                        for (int i = width - 01; i > cx; --i) { edgeR = i; if (!(iconData[i, cy, 0] == 255 && iconData[i, cy, 1] == 255 && iconData[i, cy, 2] == 255)) { break; } }
+                        for (int j = 0000000000; j < cy; ++j) { edgeT = j; if (!(iconData[cx, j, 0] == 255 && iconData[cx, j, 1] == 255 && iconData[cx, j, 2] == 255)) { break; } }
+                        for (int j = height - 1; j > cy; --j) { edgeB = j; if (!(iconData[cx, j, 0] == 255 && iconData[cx, j, 1] == 255 && iconData[cx, j, 2] == 255)) { break; } }
+                        //Console.WriteLine(iconData[cx, 0, 0] + "\t" + iconData[cx, 0, 1] + "\t" + iconData[cx, 0, 2]);
+                        //Console.WriteLine(edgeT + "\t" + edgeB + "\t" + edgeL + "\t" + edgeR + "\t" + (edgeR - edgeL) + "\t" + (edgeB - edgeT) + "\t" + ((float)(edgeR - edgeL) / (float)(edgeB - edgeT)));
+
+                        // split main icon
+                        if (edgeT != 0 || edgeB != height - 1 || edgeL != 0 || edgeR != width - 1)
+                        {
+                            int iconWidth = edgeR - edgeL, iconHeight = edgeB - edgeT;
+                            int[,,] mIconData = new int[iconWidth, iconHeight, 3];
+                            for (int y = 0; y < iconHeight; ++y)
+                            {
+                                for (int x = 0; x < iconWidth; ++x)
+                                {
+                                    mIconData[x, y, 0] = iconData[edgeL + x, edgeT + y, 0];
+                                    mIconData[x, y, 1] = iconData[edgeL + x, edgeT + y, 1];
+                                    mIconData[x, y, 2] = iconData[edgeL + x, edgeT + y, 2];
+                                }
+                            }
+                            iconData = mIconData;
+                            mIconData = null;
+                        }
+                        //ShowImage(SetRGBData(iconData), filename);
+
+                        //// 
+                        SetRGBData(iconData, ref iconImg);
+                        //ScaleImage(ref iconImg);
+                        IconMask(ref iconImg);
+                        string aHash = ImageComparer.GetImageAHashCode(ref iconImg);
+                        string dHash = ImageComparer.GetImageDHashCode(ref iconImg);
+                        string pHash = ImageComparer.GetImagePHashCode(ref iconImg);
+
+                        ((Image)iconImg).Save(resPath + @"\" + filename + "_" + aHash + "@" + dHash + "@" + pHash + ".png");
+                        iconImg.Dispose();
+                    }
+                }
+                // memory: 25.5mb
+
+                // move raw file
+                resList.Clear();
+                foreach (string resfile in Directory.GetFiles(resPath))
+                {
+                    string filename = Path.GetFileNameWithoutExtension(resfile);
+                    string extension = Path.GetExtension(resfile);
+                    string[] data = filename.Split('_');
+                    if (data.Length < 3)
+                    {
+                        // move files
+                        File.Move(resfile, resfile.Replace(filename, @"bak\" + filename));
+                    }
+                    else
+                    {
+                        // read data
+                        //Bitmap iconImg = new Bitmap(resfile);
+                        //int[,,] iconData = GetRGBData(ref iconImg);
+                        //iconImg.Dispose();
+                        string[] hash = data[2].Split('@');
+
+                        if (hash.Length < 3) continue;
+
+                        // filename, data
+                        //resList.Add(new Object[] { filename, iconData });
+                        resList.Add(new string[] { filename, hash[0], hash[1], hash[2] });
+                    }
+                }
+                // memory: 33.0mb
+                //*/
+            }
+
+
+            {
+                /*
+            // pick icon row from page
+            ArrayList iconResult = new ArrayList();
+            ArrayList rowInPage = new ArrayList();
+            foreach (string pagefile in ssList)
+            {
                 // read screen shot image & init data array
                 Bitmap ssImg = new Bitmap(pagefile);
                 int width = ssImg.Width;
@@ -471,7 +560,7 @@ namespace OujiTenko
             //*/
 
 
-
+            }
         }
 
         public class DeltaAreaSort : IComparer
@@ -481,11 +570,40 @@ namespace OujiTenko
 
 
 
+        private static ArrayList hashList = new ArrayList();
+        private static void GetHashListFromFile()
+        {
+            string hashFile = @".\HashList.txt";
+            try
+            {
+                StreamReader sr = new StreamReader(hashFile, System.Text.Encoding.UTF8);
+                string line;
+                while ((line = sr.ReadLine()) != null && line != "")
+                {
+                    line = line.Trim();
+                    // format data
+                    string[] data = line.Split(',');
+                    if (data.Length != 7 || data[0] == "") continue;
+
+                    // put data to array
+                    //Console.WriteLine(data);
+                    hashList.Add(data);
+                }
+                sr.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+
+
 
         private static void ShowImage(int[,,] imgData, string title)
         {
             Bitmap img = null;
-            SetRGBData(imgData, ref img);
+            TenkoCore.SetRGBData(imgData, ref img);
             ShowImage(img, title);
         }
         private static void ShowImage(Image img, string title)
@@ -505,6 +623,7 @@ namespace OujiTenko
             bgFrom.Show();
         }
 
+        /*
         //高效率用指標讀取影像資料
         private static int[,,] GetRGBData(ref Bitmap bitImg)
         {
@@ -879,7 +998,7 @@ namespace OujiTenko
 
             return da;
         }
-
+        //*/
 
 
 
