@@ -81,7 +81,6 @@ namespace OujiTenko
                         //int px = i;
                         int px = (i < width) ? i : width * 2 - 2 - i;
                         int py = j;
-                        bool edge = (px == 0 || px == width - 1 || py == 0);// || py == height - 1);
 
                         if (ssImgData[px, py, 3] != -1) continue;
 
@@ -91,7 +90,7 @@ namespace OujiTenko
                             Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
                         {
                             // outside of icon
-                            if (edge ||
+                            if ((px == 0 || px == width - 1 || py == 0) ||
                                 ssImgData[px, py - 1, 3] == 0 ||
                                 ssImgData[px - 1, py, 3] == 0 ||
                                 ssImgData[px + 1, py, 3] == 0)
@@ -147,7 +146,6 @@ namespace OujiTenko
                         }
                     }
                 }
-                Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
 
                 // clear pixel by mask
                 // get maskid list
@@ -183,12 +181,10 @@ namespace OujiTenko
                     }
                 }
 
-
                 //foreach (KeyValuePair<int, int> item in maskList)
                 //{
                 //    Console.WriteLine(item.Key + "\t" + item.Value);
                 //}
-
 
                 Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
                 Console.Write(System.Environment.TickCount - startTime + "ms\n");
