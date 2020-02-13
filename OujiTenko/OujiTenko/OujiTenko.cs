@@ -40,6 +40,7 @@ namespace OujiTenko
             // read bg image
             string bgBmpPath = (string)ssList[bgi];
             Bitmap bgBmp = new Bitmap(bgBmpPath);
+            bgBmp = (Bitmap)bgBmp.GetThumbnailImage(bgBmp.Width / 2, bgBmp.Height / 2, () => { return false; }, IntPtr.Zero);
             int[,,] bgRgbData = TenkoCore.GetARGBData(ref bgBmp);
             bgBmp.Dispose();
             ssList.RemoveAt(bgi);
@@ -48,15 +49,21 @@ namespace OujiTenko
             foreach (string pagefile in ssList)
             {
                 if (Path.GetExtension(pagefile).ToLower() != ".png") continue;
-                Console.WriteLine(pagefile);
+                // timer
+                int startTime = System.Environment.TickCount;
+                int lastTime = System.Environment.TickCount;
+                Console.Write(pagefile + "\t");
 
                 // read screen shot image & init data array
                 Bitmap ssImg = new Bitmap(pagefile);
+                ssImg = (Bitmap)ssImg.GetThumbnailImage(ssImg.Width / 2, ssImg.Height / 2, () => { return false; }, IntPtr.Zero);
                 int[,,] ssImgData = TenkoCore.GetARGBData(ref ssImg);
                 //bgBmp.Dispose();
 
+                // get size data
                 int width = ssImg.Width;
                 int height = ssImg.Height;
+
                 // clear alpha data
                 for (int j = 0; j < height; ++j)
                 {
@@ -65,63 +72,133 @@ namespace OujiTenko
                         ssImgData[i, j, 3] = -1;
                     }
                 }
+
                 // set mask
                 for (int j = 0; j < height; ++j)
                 {
-                    //for (int i = 0; i < width; ++i)
                     for (int i = 0; i < width * 2 - 2; ++i)
                     {
                         //int px = i;
                         int px = (i < width) ? i : width * 2 - 2 - i;
                         int py = j;
-                        bool edge = (px == 0 || px == width - 1 || py == 0 || py == height - 1);
+                        bool edge = (px == 0 || px == width - 1 || py == 0);// || py == height - 1);
 
-                        // if (ssImgData[px, py, 3] != 0) continue;
+                        if (ssImgData[px, py, 3] != -1) continue;
 
+                        // same color
                         if (Math.Abs(ssImgData[px, py, 0] - bgRgbData[px, py, 0]) < 15 &&
                             Math.Abs(ssImgData[px, py, 1] - bgRgbData[px, py, 1]) < 15 &&
                             Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
                         {
-                            // same color
-                            if (edge || (
-                                ssImgData[px + 1, py, 0] == 0 && ssImgData[px + 1, py, 1] == 0 && ssImgData[px + 1, py, 2] == 0) || (
-                                ssImgData[px - 1, py, 0] == 0 && ssImgData[px - 1, py, 1] == 0 && ssImgData[px - 1, py, 2] == 0) || (
-                                ssImgData[px, py - 1, 0] == 0 && ssImgData[px, py - 1, 1] == 0 && ssImgData[px, py - 1, 2] == 0))
+                            // outside of icon
+                            if (edge ||
+                                ssImgData[px, py - 1, 3] == 0 ||
+                                ssImgData[px - 1, py, 3] == 0 ||
+                                ssImgData[px + 1, py, 3] == 0)
                             {
-                                //ssImgData[px, py, 0] = 0; ssImgData[px, py, 1] = 0; ssImgData[px, py, 2] = 0;
-
                                 ssImgData[px, py, 3] = 0;
                             }
+                        }
+                        else
+                        {
+                            ssImgData[px, py, 3] = py * width + px;
                         }
                     }
                 }
 
+                // Blocking mask
+                for (int j = height - 1; j > 0; --j)
+                {
+                    for (int i = 0; i < (width - 1) * 2; ++i)
+                    {
+                        int px = (i < width) ? i : (width - 1) * 2 - i;
+                        int py = j;
 
+                        if (ssImgData[px, py, 3] == 0) continue;
 
-
-
-
-                // clear pixel by mask
+                        if (py != height - 1) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px, py + 1, 3]);
+                        if (px != 0000000000) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px - 1, py, 3]);
+                        if (px != width - 01) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px + 1, py, 3]);
+                    }
+                }
+                // get maskid list/area/size
+                int maxMaskArea = 0;
+                Dictionary<int, int[]> maskList = new Dictionary<int, int[]>(); // list[id] = [area, left, top, right, bottom]
                 for (int j = 0; j < height; ++j)
                 {
                     for (int i = 0; i < width; ++i)
                     {
-                        if (ssImgData[i, j, 3] == 5)
+                        int maskId = ssImgData[i, j, 3];
+                        if (maskId != 0)
+                        {
+                            if (maskList.ContainsKey(maskId))
+                            {
+                                ++maskList[maskId][0];
+                                maxMaskArea = Math.Max(maskList[maskId][0], maxMaskArea);
+                                maskList[maskId][1] = Math.Min(maskList[maskId][1], i);
+                                maskList[maskId][2] = Math.Min(maskList[maskId][2], j);
+                                maskList[maskId][3] = Math.Max(maskList[maskId][3], i);
+                                maskList[maskId][4] = Math.Max(maskList[maskId][4], j);
+                            }
+                            else
+                            {
+                                maskList.Add(maskId, new int[5] { 1, i, j, i, j });
+                            }
+                        }
+                    }
+                }
+                Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
+
+                // clear pixel by mask
+                // get maskid list
+                for (int j = 0; j < height; ++j)
+                {
+                    for (int i = 0; i < width; ++i)
+                    {
+                        int maskId = ssImgData[i, j, 3];
+                        if (maskId == 0)
                         {
                             ssImgData[i, j, 0] = 255;
-                            ssImgData[i, j, 1] = 0;
-                            ssImgData[i, j, 2] = 0;
+                            ssImgData[i, j, 1] = 255;
+                            ssImgData[i, j, 2] = 255;
+                            continue;
+                        }
+
+                        int dx = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
+                        int dy = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
+
+                        if (maskList[maskId][0] < maxMaskArea * .9 || dx < dy / 10)
+                        {
+                            ssImgData[i, j, 0] = 255;
+                            ssImgData[i, j, 1] = 255;
+                            ssImgData[i, j, 2] = 255;
+                        }
+                        else
+                        {
+                            //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
+                            //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
+                            //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
+                            ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
                         }
                     }
                 }
 
 
+                //foreach (KeyValuePair<int, int> item in maskList)
+                //{
+                //    Console.WriteLine(item.Key + "\t" + item.Value);
+                //}
 
 
-                //TenkoCore.SetRGBData(ssImgData, ref ssImg);
-                ShowImage(ssImgData, Path.GetFileName(pagefile));
+                Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
+                Console.Write(System.Environment.TickCount - startTime + "ms\n");
 
-                break;
+                TenkoCore.SetRGBData(ssImgData, ref ssImg);
+                ((Image)ssImg).Save(Path.GetFileName(pagefile));
+                //ShowImage(ssImgData, Path.GetFileName(pagefile));
+                ssImg.Dispose();
+
+                //break;
             }
 
 

@@ -115,7 +115,7 @@ namespace OujiTenko
 
             //解開記憶體鎖
             bitImg.UnlockBits(bitmapData);
-
+            bitmapData = null;
             #endregion
 
             return rgbData;
@@ -169,7 +169,7 @@ namespace OujiTenko
 
             //解開記憶體鎖
             bitImg.UnlockBits(bitmapData);
-
+            bitmapData = null;
             #endregion
 
             return;
