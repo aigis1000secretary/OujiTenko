@@ -50,14 +50,13 @@ namespace OujiTenko
 
             //// 
             SetRGBData(iconData, ref iconImg);
-            //ScaleImage(ref iconImg);
             IconMask(ref iconImg);
             string aHash = ImageComparer.GetImageAHashCode(ref iconImg);
             string dHash = ImageComparer.GetImageDHashCode(ref iconImg);
             string pHash = ImageComparer.GetImagePHashCode(ref iconImg);
             return new string[] { aHash, dHash, pHash };
         }
-        
+
         //高效率用指標讀取影像資料
         public static int[,,] GetARGBData(ref Bitmap bitImg)
         {
@@ -415,9 +414,9 @@ namespace OujiTenko
                 Object[] y = (Object[])y0;
                 //resFile, aHashHD, dHashHD, pHashHD
 
-                if (x[3] != y[3]) return ((new CaseInsensitiveComparer()).Compare(y[3], x[3]));
-                if (x[1] != y[1]) return ((new CaseInsensitiveComparer()).Compare(y[1], x[1]));
-                if (x[2] != y[2]) return ((new CaseInsensitiveComparer()).Compare(y[2], x[2]));
+                if (x[3] != y[3]) return ((new CaseInsensitiveComparer()).Compare(x[3], y[3]));
+                if (x[1] != y[1]) return ((new CaseInsensitiveComparer()).Compare(x[1], y[1]));
+                if (x[2] != y[2]) return ((new CaseInsensitiveComparer()).Compare(x[2], y[2]));
                 return 0;
             }
         }

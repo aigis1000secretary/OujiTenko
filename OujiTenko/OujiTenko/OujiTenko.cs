@@ -49,16 +49,17 @@ namespace OujiTenko
             foreach (string pagefile in ssList)
             {
                 if (Path.GetExtension(pagefile).ToLower() != ".png") continue;
-                // timer
-                int startTime = System.Environment.TickCount;
-                int lastTime = System.Environment.TickCount;
-                Console.Write(pagefile + "\t");
+                Console.WriteLine(pagefile);
+                //// timer
+                //int startTime = System.Environment.TickCount;
+                //int lastTime = System.Environment.TickCount;
+                //Console.Write(pagefile + "\t");
 
                 // read screen shot image & init data array
                 Bitmap ssImg = new Bitmap(pagefile);
                 ssImg = (Bitmap)ssImg.GetThumbnailImage(ssImg.Width / 2, ssImg.Height / 2, () => { return false; }, IntPtr.Zero);
                 int[,,] ssImgData = TenkoCore.GetARGBData(ref ssImg);
-                //bgBmp.Dispose();
+                //ssImg.Dispose();
 
                 // get size data
                 int width = ssImg.Width;
@@ -108,7 +109,7 @@ namespace OujiTenko
                 // Blocking mask
                 for (int j = height - 1; j > 0; --j)
                 {
-                    for (int i = 0; i < (width - 1) * 2; ++i)
+                    for (int i = 0; i < width * 2 - 2; ++i)
                     {
                         int px = (i < width) ? i : (width - 1) * 2 - i;
                         int py = j;
@@ -120,6 +121,7 @@ namespace OujiTenko
                         if (px != width - 01) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px + 1, py, 3]);
                     }
                 }
+
                 // get maskid list/area/size
                 int maxMaskArea = 0;
                 Dictionary<int, int[]> maskList = new Dictionary<int, int[]>(); // list[id] = [area, left, top, right, bottom]
@@ -162,10 +164,13 @@ namespace OujiTenko
                             continue;
                         }
 
-                        int dx = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
-                        int dy = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
+                        //int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
+                        //int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
+                        int area = maskList[maskId][0];
+                        int maskWidth = maskList[maskId][3] - maskList[maskId][1];
+                        int maskHeight = maskList[maskId][4] - maskList[maskId][2];
 
-                        if (maskList[maskId][0] < maxMaskArea * .9 || dx < dy / 10)
+                        if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
                         {
                             ssImgData[i, j, 0] = 255;
                             ssImgData[i, j, 1] = 255;
@@ -180,21 +185,101 @@ namespace OujiTenko
                         }
                     }
                 }
+                // split icon img data
+                foreach (KeyValuePair<int, int[]> item in maskList)
+                {
+
+                    // get mask data
+                    int maskId = item.Key;
+                    int area = item.Value[0];
+                    int left = item.Value[1];
+                    int top = item.Value[2];
+                    int right = item.Value[3];
+                    int bottom = item.Value[4];
+
+                    int maskWidth = right - left;
+                    int maskHeight = bottom - top;
+
+                    // skip non-icon
+                    if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10) { continue; }
+
+                    //Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top);
+                    //Console.WriteLine(maskId + "\t" + area + "\t" + left * 2 / maskWidth + "\t" + top * 2 / maskHeight);
+
+                    // get icon color
+                    int[,,] iconData = new int[maskWidth, maskHeight, 3];
+                    for (int j = 0; j < maskHeight; ++j)
+                    {
+                        for (int i = 0; i < maskWidth; ++i)
+                        {
+                            iconData[i, j, 0] = ssImgData[left + i, top + j, 0];
+                            iconData[i, j, 1] = ssImgData[left + i, top + j, 1];
+                            iconData[i, j, 2] = ssImgData[left + i, top + j, 2];
+                        }
+                    }
+                    TenkoCore.SetRGBData(iconData, ref ssImg);
+                    ((Image)ssImg).Save(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
+                    Console.WriteLine(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
+
+                    // get icon hash
+                    string[] iconHash = TenkoCore.GetIconHash(ref ssImg);
+                    //((Image)ssImg).Save(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + "m.png");
+                    ArrayList compareResult = new ArrayList();
+                    foreach (string[] hashData in hashList)
+                    {
+                        string _id = hashData[0];
+                        string _name = hashData[1];
+                        string _class = hashData[2];
+                        string aHash = hashData[3];
+                        string dHash = hashData[4];
+                        string pHash = hashData[5];
+                        string _path = hashData[6];
+
+                        int ahd = ImageComparer.HammingDistance(aHash, iconHash[0]);
+                        int dhd = ImageComparer.HammingDistance(dHash, iconHash[1]);
+                        int phd = ImageComparer.HammingDistance(pHash, iconHash[2]);
+
+                        if (ahd < 8 && dhd < 8 && phd < 14)
+                        {
+                            compareResult.Add(new Object[] { _name, ahd, dhd, phd });
+                        }
+                    }
+                    compareResult.Sort(new ImageComparer.HammingDistanceSort());
+
+
+                    //foreach (Object[] hashData in compareResult)
+                    for (int i = 0; i < 5 && i < compareResult.Count; ++i)
+                    {
+                        Object[] hashData = (Object[])compareResult[i];
+                        Console.WriteLine(hashData[0] + ", " + hashData[1] + ", " + hashData[2] + ", " + hashData[3]);
+                    }
+
+                    Console.WriteLine(iconHash[0] + ", " + iconHash[1] + ", " + iconHash[2]);
+                    Console.ReadLine();
+                }
+
+
+
+
+
+
+
+
 
                 //foreach (KeyValuePair<int, int> item in maskList)
                 //{
                 //    Console.WriteLine(item.Key + "\t" + item.Value);
                 //}
 
-                Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
-                Console.Write(System.Environment.TickCount - startTime + "ms\n");
+                //Console.Write(System.Environment.TickCount - lastTime + "ms\t"); lastTime = System.Environment.TickCount;
+                //Console.Write(System.Environment.TickCount - startTime + "ms\n");
 
                 TenkoCore.SetRGBData(ssImgData, ref ssImg);
                 ((Image)ssImg).Save(Path.GetFileName(pagefile));
                 //ShowImage(ssImgData, Path.GetFileName(pagefile));
                 ssImg.Dispose();
 
-                //break;
+                break;
             }
 
 
@@ -636,10 +721,10 @@ namespace OujiTenko
             }
         }
 
-        public class DeltaAreaSort : IComparer
-        {
-            int IComparer.Compare(Object x, Object y) { return ((new CaseInsensitiveComparer()).Compare(((object[])y)[0], ((object[])x)[0])); }
-        }
+        //public class DeltaAreaSort : IComparer
+        //{
+        //    int IComparer.Compare(Object x, Object y) { return ((new CaseInsensitiveComparer()).Compare(((object[])y)[0], ((object[])x)[0])); }
+        //}
 
 
 

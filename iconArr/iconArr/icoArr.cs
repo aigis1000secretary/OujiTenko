@@ -92,6 +92,11 @@ namespace iconArr
                     if (extension.ToLower() == ".png") TenkoCore.PngToBmpImage(ref iconImg);
                     // get new icon Hash
                     string[] hashs = TenkoCore.GetIconHash(ref iconImg);
+                    if (id == 22)
+                    {
+                        ((Image)iconImg).Save(hashs[0] + ".png");
+                    }
+
                     iconImg.Dispose();
 
                     // add data to table
