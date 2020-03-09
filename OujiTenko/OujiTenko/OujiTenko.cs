@@ -50,6 +50,7 @@ namespace OujiTenko
             {
                 if (Path.GetExtension(pagefile).ToLower() != ".png") continue;
                 Console.WriteLine(pagefile);
+
                 //// timer
                 //int startTime = System.Environment.TickCount;
                 //int lastTime = System.Environment.TickCount;
@@ -75,6 +76,7 @@ namespace OujiTenko
                 }
 
                 // set mask
+                int iconStride = (int)(ssImgData.GetLength(1) / 5.6);
                 for (int j = 0; j < height; ++j)
                 {
                     for (int i = 0; i < width * 2 - 2; ++i)
@@ -101,7 +103,11 @@ namespace OujiTenko
                         }
                         else
                         {
-                            ssImgData[px, py, 3] = py * width + px;
+                            int spx = (int)((px / iconStride)) + 1;
+                            int spy = (int)((py / iconStride)) + 1;
+                            //int spx = px;
+                            //int spy = py;
+                            ssImgData[px, py, 3] = spy * width + spx;
                         }
                     }
                 }
@@ -109,7 +115,7 @@ namespace OujiTenko
                 // Blocking mask
                 for (int j = height - 1; j > 0; --j)
                 {
-                    for (int i = 0; i < width * 2 - 2; ++i)
+                    for (int i = width * 2 - 3; i >= 0; --i)
                     {
                         int px = (i < width) ? i : (width - 1) * 2 - i;
                         int py = j;
@@ -130,7 +136,7 @@ namespace OujiTenko
                     for (int i = 0; i < width; ++i)
                     {
                         int maskId = ssImgData[i, j, 3];
-                        if (maskId != 0)
+                        if (maskId > 0)
                         {
                             if (maskList.ContainsKey(maskId))
                             {
@@ -149,6 +155,32 @@ namespace OujiTenko
                     }
                 }
 
+
+                //foreach (KeyValuePair<int, int[]> item in maskList)
+                //{
+                //    // get mask data
+                //    int maskId = item.Key;
+                //    int area = item.Value[0];
+                //    int left = item.Value[1];
+                //    int top = item.Value[2];
+                //    int right = item.Value[3];
+                //    int bottom = item.Value[4];
+
+                //    //Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top);
+                //    Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top + "\t" + right + "\t" + bottom);
+                //}
+                //Console.ReadLine();
+
+
+
+
+
+
+
+
+
+
+
                 // clear pixel by mask
                 // get maskid list
                 for (int j = 0; j < height; ++j)
@@ -156,7 +188,7 @@ namespace OujiTenko
                     for (int i = 0; i < width; ++i)
                     {
                         int maskId = ssImgData[i, j, 3];
-                        if (maskId == 0)
+                        if (maskId <= 0)
                         {
                             ssImgData[i, j, 0] = 255;
                             ssImgData[i, j, 1] = 255;
@@ -164,29 +196,96 @@ namespace OujiTenko
                             continue;
                         }
 
-                        //int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
-                        //int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
-                        int area = maskList[maskId][0];
-                        int maskWidth = maskList[maskId][3] - maskList[maskId][1];
-                        int maskHeight = maskList[maskId][4] - maskList[maskId][2];
 
-                        if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
-                        {
-                            ssImgData[i, j, 0] = 255;
-                            ssImgData[i, j, 1] = 255;
-                            ssImgData[i, j, 2] = 255;
-                        }
-                        else
-                        {
-                            //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
-                            //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
-                            //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
-                            ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
-                        }
+
+                        ssImgData[i, j, 0] = (maskId / 2) % 100;
+                        ssImgData[i, j, 1] = (int)(0.01 * maskId / 2) % 100;
+                        ssImgData[i, j, 2] = (int)(0.0001 * maskId / 2) % 100;
+                        continue;
+
+                        ////int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
+                        ////int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
+                        //int area = maskList[maskId][0];
+                        //int maskWidth = maskList[maskId][3] - maskList[maskId][1];
+                        //int maskHeight = maskList[maskId][4] - maskList[maskId][2];
+
+                        //if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
+                        //{
+                        //    ssImgData[i, j, 0] = 255;
+                        //    ssImgData[i, j, 1] = 255;
+                        //    ssImgData[i, j, 2] = 255;
+                        //}
+                        //else
+                        //{
+                        //    //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
+                        //    //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
+                        //    //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
+                        //    ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
+                        //}
                     }
                 }
 
-                // split icon img data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                //// clear pixel by mask
+                //// get maskid list
+                //for (int j = 0; j < height; ++j)
+                //{
+                //    for (int i = 0; i < width; ++i)
+                //    {
+                //        int maskId = ssImgData[i, j, 3];
+                //        if (maskId <= 0)
+                //        {
+                //            ssImgData[i, j, 0] = 255;
+                //            ssImgData[i, j, 1] = 255;
+                //            ssImgData[i, j, 2] = 255;
+                //            continue;
+                //        }
+
+                //        //int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
+                //        //int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
+                //        int area = maskList[maskId][0];
+                //        int maskWidth = maskList[maskId][3] - maskList[maskId][1];
+                //        int maskHeight = maskList[maskId][4] - maskList[maskId][2];
+
+                //        if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
+                //        {
+                //            ssImgData[i, j, 0] = 255;
+                //            ssImgData[i, j, 1] = 255;
+                //            ssImgData[i, j, 2] = 255;
+                //        }
+                //        else
+                //        {
+                //            //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
+                //            //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
+                //            //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
+                //            ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
+                //        }
+                //    }
+                //}
+
+                /*// split icon img data
                 foreach (KeyValuePair<int, int[]> item in maskList)
                 {
 
@@ -205,7 +304,7 @@ namespace OujiTenko
                     if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10) { continue; }
 
                     //Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top);
-                    //Console.WriteLine(maskId + "\t" + area + "\t" + left * 2 / maskWidth + "\t" + top * 2 / maskHeight);
+                    Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top + "\t" + right + "\t" + bottom);
 
                     // get icon color
                     int[,,] iconData = new int[maskWidth, maskHeight, 3];
@@ -252,12 +351,12 @@ namespace OujiTenko
                     for (int i = 0; i < 5 && i < compareResult.Count; ++i)
                     {
                         Object[] hashData = (Object[])compareResult[i];
-                        Console.WriteLine(hashData[0] + ", " + hashData[1] + ", " + hashData[2] + ", " + hashData[3]);
+                        //Console.WriteLine(hashData[0] + ", " + hashData[1] + ", " + hashData[2] + ", " + hashData[3]);
                     }
 
-                    Console.WriteLine(iconHash[0] + ", " + iconHash[1] + ", " + iconHash[2]);
-                    Console.ReadLine();
-                }
+                    //Console.WriteLine(iconHash[0] + ", " + iconHash[1] + ", " + iconHash[2]);
+                    //Console.ReadLine();
+                }//*/
 
 
 
