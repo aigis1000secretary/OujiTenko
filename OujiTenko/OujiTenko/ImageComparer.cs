@@ -18,7 +18,7 @@ namespace OujiTenko
             // init variable
             int width = iconData.GetLength(0);
             int height = iconData.GetLength(1);
-            int cx = (int)(width * 0.75), cy = (int)(height * 0.75);
+            int cx = (int)(width * 0.25), cy = (int)(height * 0.75);
 
             // find icon main range
             int edgeT = 0, edgeB = 0, edgeL = 0, edgeR = 0;
@@ -101,6 +101,12 @@ namespace OujiTenko
                         if (isAlpha)
                         {
                             rgbData[i, j, 3] = p[0];
+                            if (p[0] == 0)
+                            {
+                                rgbData[i, j, 2] = 255;
+                                rgbData[i, j, 1] = 255;
+                                rgbData[i, j, 0] = 255;
+                            }
                             p++;
                         }
                         else
@@ -426,7 +432,18 @@ namespace OujiTenko
         /// </summary>
         private static Bitmap Thumb(ref Bitmap originImage, int width, int height)
         {
-            return (Bitmap)originImage.GetThumbnailImage(width, height, () => { return false; }, IntPtr.Zero);
+            //return (Bitmap)originImage.GetThumbnailImage(width, height, () => { return false; }, IntPtr.Zero);
+
+            int oriwidth = originImage.Width;
+            int oriheight = originImage.Height;
+
+            Bitmap resizedbitmap = new Bitmap(width, height);
+            Graphics g = Graphics.FromImage(resizedbitmap);
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.Clear(Color.Transparent);
+            g.DrawImage(originImage, new Rectangle(0, 0, width, height), new Rectangle(0, 0, oriwidth, oriheight), GraphicsUnit.Pixel);
+            return resizedbitmap;
         }
 
         /// <summary>

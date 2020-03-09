@@ -3,7 +3,6 @@ using System.Collections;
 //using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 //using System.Linq;
 //using System.Text;
 
@@ -14,12 +13,12 @@ namespace iconArr
         public static string[] GetIconHash(ref Bitmap iconImg)
         {
             //GrayImage(ref iconImg);
-            int[,,] iconData = GetRGBData(ref iconImg);
+            int[,,] iconData = GetARGBData(ref iconImg);
 
             // init variable
             int width = iconData.GetLength(0);
             int height = iconData.GetLength(1);
-            int cx = (int)(width * 0.75), cy = (int)(height * 0.75);
+            int cx = (int)(width * 0.25), cy = (int)(height * 0.75);
 
             // find icon main range
             int edgeT = 0, edgeB = 0, edgeL = 0, edgeR = 0;
@@ -51,7 +50,6 @@ namespace iconArr
 
             //// 
             SetRGBData(iconData, ref iconImg);
-            //ScaleImage(ref iconImg);
             IconMask(ref iconImg);
             string aHash = ImageComparer.GetImageAHashCode(ref iconImg);
             string dHash = ImageComparer.GetImageDHashCode(ref iconImg);
@@ -59,139 +57,29 @@ namespace iconArr
             return new string[] { aHash, dHash, pHash };
         }
 
-        public static void PngToBmpImage(ref Bitmap bitImg)
-        {
-            // get RGBA
-            int height = bitImg.Height;
-            int width = bitImg.Width;
-            //鎖住Bitmap整個影像內容
-            BitmapData bitmapData = bitImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-            //取得影像資料的起始位置
-            IntPtr imgPtr = bitmapData.Scan0;
-            //影像scan的寬度
-            int stride = bitmapData.Stride;
-            //影像陣列的實際寬度
-            int widthByte = width * 4;
-            //所Padding的Byte數
-            int skipByte = stride - widthByte;
-            //設定預定存放的rgb三維陣列
-            int[,,] rgbaData = new int[width, height, 4];
-
-            #region 讀取RGBA資料
-            //注意C#的GDI+內的影像資料順序為BGRA, 非一般熟悉的順序RGBA
-            //因此我們把順序調回原來的陣列順序排放BGRA->RGBA
-            unsafe
-            {
-                byte* p = (byte*)(void*)imgPtr;
-                for (int j = 0; j < height; j++)
-                {
-                    for (int i = 0; i < width; i++)
-                    {
-                        //R Channel
-                        rgbaData[i, j, 2] = p[0];
-                        p++;
-                        //G Channel
-                        rgbaData[i, j, 1] = p[0];
-                        p++;
-                        //B Channel
-                        rgbaData[i, j, 0] = p[0];
-                        p++;
-                        //A Channel
-                        rgbaData[i, j, 3] = p[0];
-                        p++;
-                    }
-                    p += skipByte;
-                }
-            }
-
-            //解開記憶體鎖
-            bitImg.UnlockBits(bitmapData);
-            #endregion
-
-            //// set RGB
-            ////依陣列長寬設定Bitmap新的物件
-            //bitImg.Dispose();
-            //bitImg = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-
-            //鎖住Bitmap整個影像內容
-            bitmapData = bitImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-            //取得影像資料的起始位置
-            imgPtr = bitmapData.Scan0;
-            //影像scan的寬度
-            stride = bitmapData.Stride;
-            //影像陣列的實際寬度
-            widthByte = width * 3;
-            //所Padding的Byte數
-            skipByte = stride - widthByte;
-
-            #region 設定RGB資料
-            //注意C#的GDI+內的影像資料順序為BGR, 非一般熟悉的順序RGB
-            //因此我們把順序調回GDI+的設定值, RGB->BGR
-            unsafe
-            {
-                byte* p = (byte*)(void*)imgPtr;
-                for (int j = 0; j < height; j++)
-                {
-                    for (int i = 0; i < width; i++)
-                    {
-                        if (rgbaData[i, j, 3] != 255)
-                        {
-                            //R Channel
-                            p[0] = (byte)255;
-                            p++;
-                            //G Channel
-                            p[0] = (byte)255;
-                            p++;
-                            //B Channel
-                            p[0] = (byte)255;
-                            p++;
-                        }
-                        else
-                        {
-                            //R Channel
-                            p[0] = (byte)rgbaData[i, j, 2];
-                            p++;
-                            //G Channel
-                            p[0] = (byte)rgbaData[i, j, 1];
-                            p++;
-                            //B Channel
-                            p[0] = (byte)rgbaData[i, j, 0];
-                            p++;
-                        }
-                    }
-                    p += skipByte;
-                }
-            }
-
-            //解開記憶體鎖
-            bitImg.UnlockBits(bitmapData);
-            rgbaData = null;
-            #endregion
-
-            return;
-        }
-
         //高效率用指標讀取影像資料
-        private static int[,,] GetRGBData(ref Bitmap bitImg)
+        public static int[,,] GetARGBData(ref Bitmap bitImg)
         {
             int height = bitImg.Height;
             int width = bitImg.Width;
+            //檢查alpha通道
+            bool isAlpha = Image.IsAlphaPixelFormat(bitImg.PixelFormat);
             //鎖住Bitmap整個影像內容
-            BitmapData bitmapData = bitImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            BitmapData bitmapData = bitImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, (isAlpha ? PixelFormat.Format32bppRgb : PixelFormat.Format24bppRgb));
             //取得影像資料的起始位置
             IntPtr imgPtr = bitmapData.Scan0;
             //影像scan的寬度
             int stride = bitmapData.Stride;
             //影像陣列的實際寬度
-            int widthByte = width * 3;
+            int widthByte = width * (isAlpha ? 4 : 3);
             //所Padding的Byte數
             int skipByte = stride - widthByte;
             //設定預定存放的rgb三維陣列
-            int[,,] rgbData = new int[width, height, 3];
+            int[,,] rgbData = new int[width, height, 4];
 
             #region 讀取RGB資料
-            //注意C#的GDI+內的影像資料順序為BGR, 非一般熟悉的順序RGB
-            //因此我們把順序調回原來的陣列順序排放BGR->RGB
+            //注意C#的GDI+內的影像資料順序為BGRA, 非一般熟悉的順序RGBA
+            //因此我們把順序調回原來的陣列順序排放BGRA->RGBA
             unsafe
             {
                 byte* p = (byte*)(void*)imgPtr;
@@ -208,21 +96,37 @@ namespace iconArr
                         //B Channel
                         rgbData[i, j, 0] = p[0];
                         p++;
+
+                        //A Channel
+                        if (isAlpha)
+                        {
+                            rgbData[i, j, 3] = p[0];
+                            if (p[0] == 0)
+                            {
+                                rgbData[i, j, 2] = 255;
+                                rgbData[i, j, 1] = 255;
+                                rgbData[i, j, 0] = 255;
+                            }
+                            p++;
+                        }
+                        else
+                        {
+                            rgbData[i, j, 3] = 255;
+                        }
                     }
                     p += skipByte;
                 }
             }
-
             //解開記憶體鎖
             bitImg.UnlockBits(bitmapData);
-
+            bitmapData = null;
             #endregion
 
             return rgbData;
         }
 
         //高效率圖形轉換工具--由陣列設定新的Bitmap
-        private static void SetRGBData(int[,,] rgbData, ref Bitmap bitImg)
+        public static void SetRGBData(int[,,] rgbData, ref Bitmap bitImg)
         {
             //宣告Bitmap變數
             int width = rgbData.GetLength(0);
@@ -269,7 +173,7 @@ namespace iconArr
 
             //解開記憶體鎖
             bitImg.UnlockBits(bitmapData);
-
+            bitmapData = null;
             #endregion
 
             return;
@@ -515,9 +419,9 @@ namespace iconArr
                 Object[] y = (Object[])y0;
                 //resFile, aHashHD, dHashHD, pHashHD
 
-                if (x[3] != y[3]) return ((new CaseInsensitiveComparer()).Compare(y[3], x[3]));
-                if (x[1] != y[1]) return ((new CaseInsensitiveComparer()).Compare(y[1], x[1]));
-                if (x[2] != y[2]) return ((new CaseInsensitiveComparer()).Compare(y[2], x[2]));
+                if (x[3] != y[3]) return ((new CaseInsensitiveComparer()).Compare(x[3], y[3]));
+                if (x[1] != y[1]) return ((new CaseInsensitiveComparer()).Compare(x[1], y[1]));
+                if (x[2] != y[2]) return ((new CaseInsensitiveComparer()).Compare(x[2], y[2]));
                 return 0;
             }
         }
@@ -527,7 +431,18 @@ namespace iconArr
         /// </summary>
         private static Bitmap Thumb(ref Bitmap originImage, int width, int height)
         {
-            return (Bitmap)originImage.GetThumbnailImage(width, height, () => { return false; }, IntPtr.Zero);
+            //return (Bitmap)originImage.GetThumbnailImage(width, height, () => { return false; }, IntPtr.Zero);
+
+            int oriwidth = originImage.Width;
+            int oriheight = originImage.Height;
+
+            Bitmap resizedbitmap = new Bitmap(width, height);
+            Graphics g = Graphics.FromImage(resizedbitmap);
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.Clear(Color.Transparent);
+            g.DrawImage(originImage, new Rectangle(0, 0, width, height), new Rectangle(0, 0, oriwidth, oriheight), GraphicsUnit.Pixel);
+            return resizedbitmap;
         }
 
         /// <summary>

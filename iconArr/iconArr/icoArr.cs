@@ -89,13 +89,8 @@ namespace iconArr
                     // analysisw raw icon image
                     // read icon file data
                     Bitmap iconImg = new Bitmap(path);
-                    if (extension.ToLower() == ".png") TenkoCore.PngToBmpImage(ref iconImg);
                     // get new icon Hash
                     string[] hashs = TenkoCore.GetIconHash(ref iconImg);
-                    if (id == 22)
-                    {
-                        ((Image)iconImg).Save(hashs[0] + ".png");
-                    }
 
                     iconImg.Dispose();
 

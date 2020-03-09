@@ -90,7 +90,7 @@ namespace OujiTenko
                             Math.Abs(ssImgData[px, py, 1] - bgRgbData[px, py, 1]) < 15 &&
                             Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
                         {
-                            // outside of icon
+                            // outside of icon range
                             if ((px == 0 || px == width - 1 || py == 0) ||
                                 ssImgData[px, py - 1, 3] == 0 ||
                                 ssImgData[px - 1, py, 3] == 0 ||
@@ -185,6 +185,7 @@ namespace OujiTenko
                         }
                     }
                 }
+
                 // split icon img data
                 foreach (KeyValuePair<int, int[]> item in maskList)
                 {
@@ -218,8 +219,8 @@ namespace OujiTenko
                         }
                     }
                     TenkoCore.SetRGBData(iconData, ref ssImg);
-                    ((Image)ssImg).Save(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
-                    Console.WriteLine(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
+                    //((Image)ssImg).Save(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
+                    //Console.WriteLine(Path.GetFileNameWithoutExtension(pagefile) + "_" + maskId + ".png");
 
                     // get icon hash
                     string[] iconHash = TenkoCore.GetIconHash(ref ssImg);
