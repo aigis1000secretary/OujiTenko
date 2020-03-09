@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -76,55 +77,57 @@ namespace OujiTenko
                 }
 
                 // set mask
-                int iconStride = (int)(ssImgData.GetLength(1) / 5.6);
                 for (int j = 0; j < height; ++j)
                 {
-                    for (int i = 0; i < width * 2 - 2; ++i)
+                    for (int i = 0; i < width; ++i)
                     {
-                        //int px = i;
-                        int px = (i < width) ? i : width * 2 - 2 - i;
-                        int py = j;
-
-                        if (ssImgData[px, py, 3] != -1) continue;
-
-                        // same color
-                        if (Math.Abs(ssImgData[px, py, 0] - bgRgbData[px, py, 0]) < 15 &&
-                            Math.Abs(ssImgData[px, py, 1] - bgRgbData[px, py, 1]) < 15 &&
-                            Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
+                        for (int k = 0; k <= 1; ++k)
                         {
-                            // outside of icon range
-                            if ((px == 0 || px == width - 1 || py == 0) ||
-                                ssImgData[px, py - 1, 3] == 0 ||
-                                ssImgData[px - 1, py, 3] == 0 ||
-                                ssImgData[px + 1, py, 3] == 0)
+                            int px = (k == 0 ? i : width - 1 - i);
+                            int py = j;
+
+                            if (ssImgData[px, py, 3] != -1) continue;
+
+                            // same color
+                            if (Math.Abs(ssImgData[px, py, 0] - bgRgbData[px, py, 0]) < 15 &&
+                                Math.Abs(ssImgData[px, py, 1] - bgRgbData[px, py, 1]) < 15 &&
+                                Math.Abs(ssImgData[px, py, 2] - bgRgbData[px, py, 2]) < 15)
                             {
-                                ssImgData[px, py, 3] = 0;
+                                // outside of icon range
+                                // Blocking icon
+                                if ((px == 0 || px == width - 1 || py == 0) ||
+                                    ssImgData[px, py - 1, 3] == 0 ||
+                                    ssImgData[px - 1, py, 3] == 0 ||
+                                    ssImgData[px + 1, py, 3] == 0)
+                                {
+                                    ssImgData[px, py, 3] = 0;
+                                }
                             }
-                        }
-                        else
-                        {
-                            int spx = (int)((px / iconStride)) + 1;
-                            int spy = (int)((py / iconStride)) + 1;
-                            //int spx = px;
-                            //int spy = py;
-                            ssImgData[px, py, 3] = spy * width + spx;
+                            else
+                            {
+                                int iconStride = (int)(ssImgData.GetLength(1) / 5.6);
+                                ssImgData[px, py, 3] = py * width / iconStride + px;
+                            }
                         }
                     }
                 }
 
                 // Blocking mask
-                for (int j = height - 1; j > 0; --j)
+                for (int j = height - 2; j > 0; --j)
                 {
-                    for (int i = width * 2 - 3; i >= 0; --i)
+                    for (int i = 0; i < width - 1; ++i)
                     {
-                        int px = (i < width) ? i : (width - 1) * 2 - i;
-                        int py = j;
+                        for (int k = 0; k <= 1; ++k)
+                        {
+                            int px = (k == 0 ? i : width - 1 - i);
+                            int py = j;
 
-                        if (ssImgData[px, py, 3] == 0) continue;
-
-                        if (py != height - 1) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px, py + 1, 3]);
-                        if (px != 0000000000) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px - 1, py, 3]);
-                        if (px != width - 01) ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px + 1, py, 3]);
+                            if (ssImgData[px, py, 3] == 0) continue;
+                            // maskid ==-1 or >0
+                            ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px - 1, py, 3]);
+                            ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px + 1, py, 3]);
+                            ssImgData[px, py, 3] = Math.Max(ssImgData[px, py, 3], ssImgData[px, py + 1, 3]);
+                        }
                     }
                 }
 
@@ -155,31 +158,17 @@ namespace OujiTenko
                     }
                 }
 
-
-                //foreach (KeyValuePair<int, int[]> item in maskList)
-                //{
-                //    // get mask data
-                //    int maskId = item.Key;
-                //    int area = item.Value[0];
-                //    int left = item.Value[1];
-                //    int top = item.Value[2];
-                //    int right = item.Value[3];
-                //    int bottom = item.Value[4];
-
-                //    //Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top);
-                //    Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top + "\t" + right + "\t" + bottom);
-                //}
-                //Console.ReadLine();
-
-
-
-
-
-
-
-
-
-
+                // delete invalid maskid from list
+                foreach (int key in maskList.Keys.ToArray())
+                {
+                    int area = maskList[key][0];
+                    int maskWidth = maskList[key][3] - maskList[key][1];
+                    int maskHeight = maskList[key][4] - maskList[key][2];
+                    if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
+                    {
+                        maskList.Remove(key);
+                    }
+                }
 
                 // clear pixel by mask
                 // get maskid list
@@ -188,102 +177,37 @@ namespace OujiTenko
                     for (int i = 0; i < width; ++i)
                     {
                         int maskId = ssImgData[i, j, 3];
-                        if (maskId <= 0)
+                        if (maskId == 0 || !maskList.ContainsKey(maskId))
                         {
                             ssImgData[i, j, 0] = 255;
                             ssImgData[i, j, 1] = 255;
                             ssImgData[i, j, 2] = 255;
                             continue;
                         }
-
-
-
-                        ssImgData[i, j, 0] = (maskId / 2) % 100;
-                        ssImgData[i, j, 1] = (int)(0.01 * maskId / 2) % 100;
-                        ssImgData[i, j, 2] = (int)(0.0001 * maskId / 2) % 100;
-                        continue;
-
-                        ////int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
-                        ////int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
-                        //int area = maskList[maskId][0];
-                        //int maskWidth = maskList[maskId][3] - maskList[maskId][1];
-                        //int maskHeight = maskList[maskId][4] - maskList[maskId][2];
-
-                        //if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
-                        //{
-                        //    ssImgData[i, j, 0] = 255;
-                        //    ssImgData[i, j, 1] = 255;
-                        //    ssImgData[i, j, 2] = 255;
-                        //}
-                        //else
-                        //{
-                        //    //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
-                        //    //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
-                        //    //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
-                        //    ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
-                        //}
                     }
                 }
 
+                // sort mask list
+                maskList = maskList.OrderBy(o => o.Key).ToDictionary(o => o.Key, p => p.Value);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                //// clear pixel by mask
-                //// get maskid list
-                //for (int j = 0; j < height; ++j)
+                ////show masklist
+                //foreach (KeyValuePair<int, int[]> item in maskList)
                 //{
-                //    for (int i = 0; i < width; ++i)
-                //    {
-                //        int maskId = ssImgData[i, j, 3];
-                //        if (maskId <= 0)
-                //        {
-                //            ssImgData[i, j, 0] = 255;
-                //            ssImgData[i, j, 1] = 255;
-                //            ssImgData[i, j, 2] = 255;
-                //            continue;
-                //        }
-
-                //        //int maskWidth = Math.Abs(maskList[maskId][1] - maskList[maskId][3]);
-                //        //int maskHeight = Math.Abs(maskList[maskId][2] - maskList[maskId][4]);
-                //        int area = maskList[maskId][0];
-                //        int maskWidth = maskList[maskId][3] - maskList[maskId][1];
-                //        int maskHeight = maskList[maskId][4] - maskList[maskId][2];
-
-                //        if (area < maxMaskArea * .9 || maskWidth < maskHeight / 10)
-                //        {
-                //            ssImgData[i, j, 0] = 255;
-                //            ssImgData[i, j, 1] = 255;
-                //            ssImgData[i, j, 2] = 255;
-                //        }
-                //        else
-                //        {
-                //            //ssImgData[i, j, 0] = dx == dy ? 128 : 0;
-                //            //ssImgData[i, j, 1] = dx > dy ? 255 : 0;
-                //            //ssImgData[i, j, 2] = dx > dy ? 0 : 255;
-                //            ////ssImgData[i, j, 2] = 128 * maskId / (width * height);
-                //        }
-                //    }
+                //    int maskId = item.Key;
+                //    int area = item.Value[0];
+                //    int left = item.Value[1];
+                //    int top = item.Value[2];
+                //    int right = item.Value[3];
+                //    int bottom = item.Value[4];
+                //    Console.WriteLine(maskId + "\t" + area + "\t" + left + "\t" + top + "\t" + right + "\t" + bottom);
                 //}
+
+
+
+
+
+
 
                 /*// split icon img data
                 foreach (KeyValuePair<int, int[]> item in maskList)
