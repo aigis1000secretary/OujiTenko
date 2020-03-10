@@ -236,6 +236,7 @@ namespace OujiTenko
             //	將圖片縮小到8x8的尺寸，總共64個畫素。這一步的作用是去除圖片的細節，
             //	只保留結構、明暗等基本資訊，摒棄不同尺寸、比例帶來的圖片差異。
             Bitmap thumb = Thumb(ref bmp, 8, 8);
+            // ((Image)thumb).Save("678_8_" + bmp.Height + ".png");
 
             //	第二步
             //	將縮小後的圖片，轉為64級灰度。也就是說，所有畫素點總共只有64種顏色。
@@ -281,6 +282,7 @@ namespace OujiTenko
             //	第一步
             //	將圖片縮小到8x9的尺寸，總共72個畫素
             Bitmap thumb = Thumb(ref bmp, 8, 9);
+            // ((Image)thumb).Save("678_9_" + bmp.Height + ".png");
 
             //	第二步
             //	將縮小後的圖片，轉為64級灰度。也就是說，所有畫素點總共只有64種顏色。
@@ -334,6 +336,7 @@ namespace OujiTenko
             //	將圖片縮小到8x8的尺寸，總共64個畫素。這一步的作用是去除圖片的細節，
             //	只保留結構、明暗等基本資訊，摒棄不同尺寸、比例帶來的圖片差異。
             Bitmap thumb = Thumb(ref bmp, 32, 32);
+            // ((Image)thumb).Save("678_32_" + bmp.Height + ".png");
 
             //	第二步
             //	將縮小後的圖片，轉為64級灰度。也就是說，所有畫素點總共只有64種顏色。
@@ -420,10 +423,12 @@ namespace OujiTenko
                 Object[] y = (Object[])y0;
                 //resFile, aHashHD, dHashHD, pHashHD
 
-                if (x[3] != y[3]) return ((new CaseInsensitiveComparer()).Compare(x[3], y[3]));
-                if (x[1] != y[1]) return ((new CaseInsensitiveComparer()).Compare(x[1], y[1]));
-                if (x[2] != y[2]) return ((new CaseInsensitiveComparer()).Compare(x[2], y[2]));
-                return 0;
+                int s = 0;
+                s = (s == 0 ? new CaseInsensitiveComparer().Compare(x[1], y[1]) : s);
+                s = (s == 0 ? new CaseInsensitiveComparer().Compare(x[2], y[2]) : s);                
+                s = (s == 0 ? new CaseInsensitiveComparer().Compare(x[3], y[3]) : s);
+
+                return s;
             }
         }
 

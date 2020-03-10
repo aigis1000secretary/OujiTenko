@@ -39,7 +39,7 @@ namespace iconArr
 
                     // get id data
                     string[] data = filename.Split('_');
-                    int id = Int32.Parse(data[0]);
+                    int id = int.Parse(data[0]);
                     int classType =
                         (path.IndexOf("00.aar") != -1) ? 0 :  // normal or CC
                         (path.IndexOf("01.aar") != -1) ? 1 :  // AW 1
@@ -91,6 +91,7 @@ namespace iconArr
                     Bitmap iconImg = new Bitmap(path);
                     // get new icon Hash
                     string[] hashs = TenkoCore.GetIconHash(ref iconImg);
+                    ((Image)iconImg).Save(id + ".png");
 
                     iconImg.Dispose();
 
