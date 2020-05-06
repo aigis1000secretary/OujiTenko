@@ -7,13 +7,10 @@
 */node_modules/
 */*/bin/
 */*/obj/
+*/Resources/
 
 AigisTools/Data/Cache/
 AigisTools/out/
 AigisTools/working/
 
 LocalProxy/AigisTools/
-
-charaData/Resources/
-
-testData/Resources/

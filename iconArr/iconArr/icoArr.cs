@@ -91,7 +91,7 @@ namespace iconArr
                     Bitmap iconImg = new Bitmap(path);
                     // get new icon Hash
                     string[] hashs = TenkoCore.GetIconHash(ref iconImg);
-                    ((Image)iconImg).Save(id + ".png");
+                    // ((Image)iconImg).Save(id + ".png");
 
                     iconImg.Dispose();
 
