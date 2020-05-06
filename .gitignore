@@ -12,6 +12,8 @@ AigisTools/Data/Cache/
 AigisTools/out/
 AigisTools/working/
 
+LocalProxy/AigisTools/
+
 charaData/Resources/
 
 testData/Resources/
