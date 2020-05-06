@@ -38,7 +38,8 @@ module.exports = {
             fs.writeFile(filepath + "xml.txt", folderName, (err) => { if (err) console.log(err); else console.log('xml.txt backup has been saved!'); });
 
             // files.txt
-            fs.writeFile(filepath + "files.txt", url, (err) => { if (err) console.log(err); else console.log('files.txt has been saved!'); });
+            fs.writeFile("./AigisTools/files.txt", url, (err) => { if (err) console.log(err); else console.log('files.txt has been saved!'); });
+            fs.writeFile(filepath + "files.txt", url, (err) => { if (err) console.log(err); else console.log('files.txt backup has been saved!'); });
 
         } else if (url.indexOf('/GRs733a4') != -1 || url.indexOf('/QxZpjdfV') != -1) {
             // units information / missions information
@@ -54,7 +55,9 @@ module.exports = {
     },
 
     *beforeDealHttpsRequest(requestDetail) {
-        let hostlist = ["millennium-war.net:443"    // units information / missions information
+        let hostlist = [
+	        "millennium-war.net:443",    // AigisR units information / missions information
+	        "all.millennium-war.net:443"    // Aigis units information / missions information
         ];
         return (hostlist.indexOf(requestDetail.host) != -1);
     }
