@@ -62,11 +62,22 @@ let rawDataToCsv = function (rawPath, csvPath) {
     return result;
 };
 
+let encodeBase64 = function (file) {
+    // read binary data
+    var bitmap = fs.readFileSync(file);
+    // convert binary data to base64 encoded string
+    return Buffer.from(bitmap).toString('base64');
+}
+
 const main = function () {
+    // check resources
+    let resources = "./Resources";
+    if (!fs.existsSync(resources)) return;
 
     // raw data path
     let cardsTxt = "./Resources/cards.txt";
     let classTxt = "./Resources/PlayerUnitTable.aar/002_ClassData.atb/ALTB_cldt.txt";
+
     // set data list index
     let temp = [];
     temp = rawDataToCsv(cardsTxt, "cards.csv");
@@ -89,17 +100,36 @@ const main = function () {
     // console.table(cardsData)
     // console.table(classData)
 
-    
-    // let resources = "./Resources";
-    // if (!fs.existsSync(cardsTxt)) return;
+    // result
+    let resultJson = [];
 
-    // let icons = getFileList(cardsTxt);
+    // get png list
+    let icons = getFileList(resources);
 
     // console.table(icons);
-    // for(let i in icons){
-    //     console.log()
-    // }
+    for (let i in icons) {
+        // var
+        let iconPath = icons[i];
+        let id = parseInt(path.basename(iconPath).replace("_001.png", ""));
 
+        // set json data
+        if (!cardsData[id]) continue;
+        let obj = {
+            id: id,
+            img: "data:image/png;base64," + encodeBase64(iconPath),
+        };
+        resultJson.push(obj);
+    }
+
+    // write to file
+    let cardsJs = ["var data = ["];
+    for (let i in resultJson) {
+        cardsJs.push("\t" + JSON.stringify(resultJson[i], null, 1).replace(/\n/g, "") + ",");
+    }
+    cardsJs.push("]");
+
+    fs.writeFileSync("./html/cards.js", cardsJs.join("\n"));
+    console.log("fs.writeFileSync( cards.js )");
 
 }; main();
 
