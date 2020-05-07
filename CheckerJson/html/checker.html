@@ -11,12 +11,26 @@
     <script src="./checker.js"></script>
 </head>
 
-<body onload="init();">
-    <button type='button' id='btn-sort' onclick="doSort(true)">
-        Sort by id
+<body onload="sortByRare(false);">
+    <button type='button' id='btn-sort' onclick="sortByRare(true)">
+        Sort by Rare (Ascending)
     </button>
-    <button type='button' id='btn-sort' onclick="doSort(false)">
-        Sort by -id
+    <button type='button' id='btn-sort' onclick="sortByRare(false)">
+        (descending)
+    </button>
+    <br>
+    <button type='button' id='btn-sort' onclick="sortByDate(true)">
+        Sort by Date (Ascending)
+    </button>
+    <button type='button' id='btn-sort' onclick="sortByDate(false)">
+        (descending)
+    </button>
+    <br>
+    <button type='button' id='btn-sort' onclick="sortByClass(true)">
+        Sort by Class (Ascending)
+    </button>
+    <button type='button' id='btn-sort' onclick="sortByClass(false)">
+        (descending)
     </button>
     <br>
 

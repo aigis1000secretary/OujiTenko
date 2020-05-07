@@ -114,8 +114,28 @@ const main = function () {
 
         // set json data
         if (!cardsData[id]) continue;
+        let name = cardsData[id][0];
+        let rare = parseInt(cardsData[id][7]);
+        let classId = parseInt(cardsData[id][2]);
+        let sortGroupID = classData[classId] ? parseInt(classData[classId][39]) : 0;
+
+        switch (rare) {
+            case 11: rare = 5.1; break;
+            case 10: rare = 4.1; break;
+            case 7: rare = 4.5; break;
+        }
+
+        // skip who not a unit
+        let skipList = [1];
+        if (skipList.indexOf(id) != -1) continue;
+        // skip token
+        let sellPrice = parseInt(cardsData[id][11]);
+        if (sellPrice == 0) continue;
+        // skip seirei
+        if (sortGroupID == 10) continue;
+
         let obj = {
-            id: id,
+            id, name, rare, classId, sortGroupID,
             img: "data:image/png;base64," + encodeBase64(iconPath),
         };
         resultJson.push(obj);
@@ -124,7 +144,7 @@ const main = function () {
     // write to file
     let cardsJs = ["var data = ["];
     for (let i in resultJson) {
-        cardsJs.push("\t" + JSON.stringify(resultJson[i], null, 1).replace(/\n/g, "") + ",");
+        cardsJs.push("\t" + JSON.stringify(resultJson[i], null, 1).replace(/\s*\n\s*/g, "\t") + ",");
     }
     cardsJs.push("]");
 
