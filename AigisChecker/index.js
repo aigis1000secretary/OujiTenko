@@ -142,7 +142,7 @@ const main = function () {
     }
 
     // write to file
-    let cardsJs = ["var data = ["];
+    let cardsJs = ["var charaData = ["];
     for (let i in resultJson) {
         cardsJs.push("\t" + JSON.stringify(resultJson[i], null, 1).replace(/\s*\n\s*/g, "\t") + ",");
     }
