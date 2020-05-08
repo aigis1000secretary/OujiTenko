@@ -102,7 +102,13 @@ function init() {
         let icon = document.createElement("img");
         icon.className = "icon";
         icon.id = charaData[i].id;
-        icon.title = charaData[i].name + "\n" + icon.id;
+        // icon.title = charaData[i].name;
+        icon.title = [
+            charaData[i].name,
+            "id: " + charaData[i].id,
+            "rare: " + charaData[i].rare,
+            "classId: " + charaData[i].classId
+        ].join("\n");
         icon.src = charaData[i].img;
         icon.width = styleSize;
         icon.height = styleSize;
@@ -123,58 +129,78 @@ function init() {
     setIconFlags(flagList)
 }
 
-// sort method
-function sortByRare(ascending) {
-    $(".iconbox").empty();
+// return By Rare
+function returnByRare() {
+    let iconbox = document.getElementsByClassName("iconbox")[0];
+    bFlag = false;
+    for (let i = 0; i < iconbox.childElementCount; ++i) {
+        let a = iconbox.children[i];
+        let b = iconbox.children[i + 1];
+        if (!a || !b || a.tagName != "IMG" || b.tagName != "IMG") continue;
 
-    // sort by class
-    charaData.sort(function compare(a, b) {
-        if (a.classId == b.classId) return 0;
-        return (a.classId < b.classId) ? -1 : 1;
-    })
+        let aData = charaData.find(obj => obj.id == a.id);
+        let bData = charaData.find(obj => obj.id == b.id);
 
-    // sort by group
-    charaData.sort(function compare(a, b) {
-        if (a.sortGroupID == b.sortGroupID) return 0;
-        return (a.sortGroupID < b.sortGroupID) ? -1 : 1;
-    })
+        if ((aData && bData) && aData.rare != bData.rare) {
+            let br = document.createElement("br");
+            a.parentNode.insertBefore(br, b);
+        }
+    }
 
-    // sort by rare
-    charaData.sort(function compare(a, b) {
-        if (a.rare == b.rare) return 0;
-        return (!!ascending == (a.rare < b.rare)) ? -1 : 1;
-    })
-    init();
 };
+
+// sort method
 function sortByDate(ascending) {
     $(".iconbox").empty();
 
-    // sort by id
     charaData.sort(function compare(a, b) {
-        if (a.id == b.id) return 0;
-        return (!!ascending == (a.id < b.id)) ? -1 : 1;
+        // sort by id
+        if (a.id != b.id) return (!!ascending == (a.id < b.id)) ? -1 : 1;
+
+        return 0;
     })
+
     init();
+};
+function sortByRare(ascending) {
+    $(".iconbox").empty();
+
+    charaData.sort(function compare(a, b) {
+        // sort by rare
+        if (a.rare != b.rare) return (!!ascending == (a.rare < b.rare)) ? -1 : 1;
+
+        // sort by group
+        if (a.sortGroupID != b.sortGroupID) return (a.sortGroupID < b.sortGroupID) ? -1 : 1;
+
+        // sort by class
+        if (a.classId != b.classId) return (a.classId < b.classId) ? -1 : 1;
+
+        // sort by id
+        if (a.id != b.id) return (a.id < b.id) ? -1 : 1;
+
+        return 0;
+    })
+
+    init();
+    returnByRare();
 };
 function sortByClass(ascending) {
     $(".iconbox").empty();
 
-    // sort by group
     charaData.sort(function compare(a, b) {
-        if (a.sortGroupID == b.sortGroupID) return 0;
-        return (a.sortGroupID < b.sortGroupID) ? -1 : 1;
-    })
+        // sort by class
+        if (a.classId != b.classId) return (!!ascending == (a.classId < b.classId)) ? -1 : 1;
 
-    // sort by rare
-    charaData.sort(function compare(a, b) {
-        if (a.rare == b.rare) return 0;
-        return (a.rare < b.rare) ? -1 : 1;
-    })
+        // sort by rare
+        if (a.rare != b.rare) return (a.rare > b.rare) ? -1 : 1;
 
-    // sort by class
-    charaData.sort(function compare(a, b) {
-        if (a.classId == b.classId) return 0;
-        return (!!ascending == (a.classId < b.classId)) ? -1 : 1;
+        // sort by group
+        if (a.sortGroupID != b.sortGroupID) return (a.sortGroupID < b.sortGroupID) ? -1 : 1;
+
+        // sort by id
+        if (a.id != b.id) return (a.id < b.id) ? -1 : 1;
+
+        return 0;
     })
 
     init();

@@ -12,27 +12,17 @@
 </head>
 
 <body onload="sortByRare(false);">
-    <button type='button' id='btn-sort' onclick="sortByRare(true)">
-        Sort by Rare (Ascending)
-    </button>
-    <button type='button' id='btn-sort' onclick="sortByRare(false)">
-        (descending)
-    </button>
+    <button type='button' id='btn-sort' onclick="sortByRare(true)"> Sort by Rare (↗) </button>
+    <button type='button' id='btn-sort' onclick="sortByRare(false)"> (↘) </button>
+
+    <button type='button' id='btn-sort' onclick="sortByDate(true)"> Sort by Date (↗) </button>
+    <button type='button' id='btn-sort' onclick="sortByDate(false)"> (↘) </button>
+
+    <button type='button' id='btn-sort' onclick="sortByClass(true)"> Sort by Class (↗) </button>
+    <button type='button' id='btn-sort' onclick="sortByClass(false)"> (↘) </button>
+
     <br>
-    <button type='button' id='btn-sort' onclick="sortByDate(true)">
-        Sort by Date (Ascending)
-    </button>
-    <button type='button' id='btn-sort' onclick="sortByDate(false)">
-        (descending)
-    </button>
-    <br>
-    <button type='button' id='btn-sort' onclick="sortByClass(true)">
-        Sort by Class (Ascending)
-    </button>
-    <button type='button' id='btn-sort' onclick="sortByClass(false)">
-        (descending)
-    </button>
-    <br>
+
 
     <label class="iconbox">
     </label>
