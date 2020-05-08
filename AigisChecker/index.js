@@ -72,7 +72,7 @@ let encodeBase64 = function (file) {
 const main = function () {
     // check resources
     let resources = "./Resources";
-    if (!fs.existsSync(resources)) return;
+    if (!fs.existsSync(resources)) { consoe.log("!fs.existsSync(resources)"); return; }
 
     // raw data path
     let cardsTxt = "./Resources/cards.txt";
@@ -107,10 +107,11 @@ const main = function () {
     let icons = getFileList(resources + "/ico_00.aar");
 
     // console.table(icons);
+    let id;
     for (let i in icons) {
         // var
         let iconPath = icons[i];
-        let id = parseInt(path.basename(iconPath).replace("_001.png", ""));
+        id = parseInt(path.basename(iconPath).replace("_001.png", ""));
 
         // set json data
         if (!cardsData[id]) continue;
@@ -138,11 +139,12 @@ const main = function () {
             id, name, rare, classId, sortGroupID,
             img: "data:image/png;base64," + encodeBase64(iconPath),
         };
-        resultJson.push(obj);
+        // resultJson.push(obj);
+        resultJson[id] = obj;
     }
 
     // write to file
-    let cardsJs = ["var charaData = ["];
+    let cardsJs = ["var maxCid = " + (id + 1) + ";\nvar charaData = ["];
     for (let i in resultJson) {
         cardsJs.push("\t" + JSON.stringify(resultJson[i], null, 1).replace(/\s*\n\s*/g, "\t") + ",");
     }

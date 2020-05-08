@@ -5,31 +5,22 @@ const styleSize = "75";
 // url parameter method
 function _atob(base32Str) {
     let base2Str = "";
-    let l = base32Str.length;
-    if (l > 205) {
-        base32Str = base32Str.padEnd((parseInt(l / 205) + 1) * 205, "0");
-    }
-    let i = 0;
-    while (l - i > 0) {
-        base2Str += parseInt(base32Str.substr(i, 205), 32).toString(2);
-        i += 205;
+    while (base32Str.length > 0) {
+        let temp = base32Str.substr(0, 1);
+        base32Str = base32Str.substr(1);
+        base2Str += parseInt(temp, 32).toString(2).padStart(5, "0");
     }
     return base2Str;
 }
 function _btoa(base2Str) {
     let base32Str = "";
-    let l = base2Str.length;
-    if (l > 1024) {
-        base2Str = base2Str.padEnd((parseInt(l / 1024) + 1) * 1024, "0");
-    }
-    let i = 0;
-    while (l - i > 0) {
-        base32Str += parseInt(base2Str.substr(i, 1024), 2).toString(32);
-        i += 1024;
+    while (base2Str.length > 0) {
+        let temp = base2Str.substr(0, 5);
+        base2Str = base2Str.substr(5);
+        base32Str += parseInt(temp, 2).toString(32);
     }
     return base32Str;
 }
-
 function getUrlFlags() {
     // URL obj
     let url = new URL(document.URL);
@@ -55,7 +46,8 @@ function setUrlFlags(flagList) {
 }
 function getIconFlags() {
     // read flag from iconbox
-    let flagArray = [];
+    let l = Math.ceil(maxCid / 5) * 5;
+    let flagArray = new Array(l).fill("0");
     let maxIndex = 0;
     let iconList = document.getElementsByClassName("iconbox")[0].getElementsByClassName("icon");
     for (let i in iconList) {
@@ -67,17 +59,12 @@ function getIconFlags() {
             maxIndex = Math.max(id, maxIndex);
         }
     }
-    for (let i = maxIndex; i >= 0; --i) {
-        if (!flagArray[i]) flagArray[i] = "0";
-    }
 
     // make flag list
-    // return flagArray.reverse().join("").replace(/^0*/, "");
-    return flagArray.join("").replace(/^0*/, "");
+    return flagArray.join("");  // .replace(/$0*/, "")
 }
 function setIconFlags(flagList) {
     // make flag list
-    // let flagArray = flagList.split("").reverse();
     let flagArray = flagList.split("");
 
     // set flag to iconbox
@@ -138,15 +125,14 @@ function returnByRare() {
         let b = iconbox.children[i + 1];
         if (!a || !b || a.tagName != "IMG" || b.tagName != "IMG") continue;
 
-        let aData = charaData.find(obj => obj.id == a.id);
-        let bData = charaData.find(obj => obj.id == b.id);
+        let aData = charaData.find(obj => obj && obj.id == a.id);
+        let bData = charaData.find(obj => obj && obj.id == b.id);
 
         if ((aData && bData) && aData.rare != bData.rare) {
             let br = document.createElement("br");
             a.parentNode.insertBefore(br, b);
         }
     }
-
 };
 
 // sort method
