@@ -3,6 +3,33 @@ const styleChecked = "opacity:1.0;";
 const styleSize = "75";
 
 // url parameter method
+function _atob(base32Str) {
+    let base2Str = "";
+    let l = base32Str.length;
+    if (l > 205) {
+        base32Str = base32Str.padEnd((parseInt(l / 205) + 1) * 205, "0");
+    }
+    let i = 0;
+    while (l - i > 0) {
+        base2Str += parseInt(base32Str.substr(i, 205), 32).toString(2);
+        i += 205;
+    }
+    return base2Str;
+}
+function _btoa(base2Str) {
+    let base32Str = "";
+    let l = base2Str.length;
+    if (l > 1024) {
+        base2Str = base2Str.padEnd((parseInt(l / 1024) + 1) * 1024, "0");
+    }
+    let i = 0;
+    while (l - i > 0) {
+        base32Str += parseInt(base2Str.substr(i, 1024), 2).toString(32);
+        i += 1024;
+    }
+    return base32Str;
+}
+
 function getUrlFlags() {
     // URL obj
     let url = new URL(document.URL);
@@ -12,7 +39,7 @@ function getUrlFlags() {
     let urlData = params.get("data");
 
     // return flag list
-    return urlData ? window.atob(urlData) : "";
+    return urlData ? _atob(urlData) : "";
 }
 function setUrlFlags(flagList) {
     // URL obj
@@ -20,7 +47,7 @@ function setUrlFlags(flagList) {
     let params = url.searchParams;
 
     // make url data from flag list
-    let urlData = window.btoa(flagList);
+    let urlData = _btoa(flagList);
 
     // set data to url
     params.set("data", urlData);
@@ -45,11 +72,13 @@ function getIconFlags() {
     }
 
     // make flag list
-    return flagArray.reverse().join("").replace(/^0*/, "");
+    // return flagArray.reverse().join("").replace(/^0*/, "");
+    return flagArray.join("").replace(/^0*/, "");
 }
 function setIconFlags(flagList) {
     // make flag list
-    let flagArray = flagList.split("").reverse();
+    // let flagArray = flagList.split("").reverse();
+    let flagArray = flagList.split("");
 
     // set flag to iconbox
     let iconbox = document.getElementsByClassName("iconbox")[0];
