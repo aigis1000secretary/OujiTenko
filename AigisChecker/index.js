@@ -119,11 +119,16 @@ const main = function () {
         let rare = parseInt(cardsData[id][7]);
         let classId = parseInt(cardsData[id][2]);
         let sortGroupID = classData[classId] ? parseInt(classData[classId][39]) : 0;
+        let kind = parseInt(cardsData[id][6]);
+        let isEvent = (parseInt(cardsData[id][48]) <= 15) ? 1 : 0;  // _TradePoint
+        let assign = parseInt(cardsData[id][60]);
+        let genus = parseInt(cardsData[id][61]);
+        let identity = parseInt(cardsData[id][62]);
 
         switch (rare) {
             case 11: rare = 5.1; break;
             case 10: rare = 4.1; break;
-            case 7: rare = 4.5; break;
+            case 7: rare = 3.5; break;
         }
 
         // skip who not a unit
@@ -137,6 +142,7 @@ const main = function () {
 
         let obj = {
             id, name, rare, classId, sortGroupID,
+            kind, isEvent, assign, genus, identity,
             img: "data:image/png;base64," + encodeBase64(iconPath),
         };
         // resultJson.push(obj);
