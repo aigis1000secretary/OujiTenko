@@ -46,6 +46,10 @@ function setUrlFlags(flagList) {
     // set data to url
     params.set("data", urlData);
     history.pushState(null, null, url);
+
+
+    let sharebox = document.getElementById("sharebox");
+    sharebox.textContent = url;
 }
 
 function getIconFlags() {
@@ -84,7 +88,7 @@ function setIconFlags(flagList) {
     }
 }
 
-// init
+// init method
 function init() {
     let iconbox = document.getElementsByClassName("iconbox")[0];
 
@@ -94,13 +98,7 @@ function init() {
         let icon = document.createElement("img");
         icon.className = "icon";
         icon.id = charaData[i].id;
-        // icon.title = charaData[i].name;
-        icon.title = [
-            charaData[i].name,
-            "id: " + charaData[i].id,
-            "rare: " + charaData[i].rare,
-            "classId: " + charaData[i].classId
-        ].join("\n");
+        icon.title = charaData[i].name;
         icon.src = charaData[i].img;
         icon.width = styleSize;
         icon.height = styleSize;
@@ -121,8 +119,8 @@ function init() {
     setIconFlags(flagList)
 }
 
-// return By Rare
-function setHr() {
+// hr method
+function setHr(type) {
     let iconbox = document.getElementsByClassName("iconbox")[0];
     bFlag = false;
     for (let i = 0; i < iconbox.childElementCount; ++i) {
@@ -134,15 +132,17 @@ function setHr() {
         let bData = charaData.find(obj => obj && obj.id == b.id);
         if (!aData || !bData) continue;
 
-        if (aData.rare != bData.rare) {
-            let br = document.createElement("hr");
-            a.parentNode.insertBefore(br, b);
+        if (type == "rare") {
+            if ((aData.rare != bData.rare) || (aData.placeType != bData.placeType)) {
+                let br = document.createElement("hr");
+                a.parentNode.insertBefore(br, b);
+            }
+        } else if (type == "class") {
+            if (aData.placeType != bData.placeType) {
+                let br = document.createElement("hr");
+                a.parentNode.insertBefore(br, b);
+            }
         }
-
-        // if (aData.kind != bData.kind) {
-        //     let br = document.createElement("hr");
-        //     a.parentNode.insertBefore(br, b);
-        // }
     }
 };
 
@@ -180,7 +180,7 @@ function sortByRare(ascending) {
     })
 
     init();
-    setHr();
+    setHr("rare");
 };
 
 function sortByClass(ascending) {
@@ -203,4 +203,5 @@ function sortByClass(ascending) {
     })
 
     init();
+    setHr("class");
 };

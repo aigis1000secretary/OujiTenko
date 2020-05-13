@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 // get local file list
-let getFileList = function (dirPath) {
+let getFileList = function(dirPath) {
     let result = [];
     let apiResult = fs.readdirSync(dirPath);
     for (let i in apiResult) {
@@ -15,7 +15,7 @@ let getFileList = function (dirPath) {
     return result;
 };
 
-let rawDataToCsv = function (rawPath, csvPath) {
+let rawDataToCsv = function(rawPath, csvPath) {
     let raw = fs.readFileSync(rawPath).toString();
     let row0;
 
@@ -62,14 +62,14 @@ let rawDataToCsv = function (rawPath, csvPath) {
     return result;
 };
 
-let encodeBase64 = function (file) {
+let encodeBase64 = function(file) {
     // read binary data
     var bitmap = fs.readFileSync(file);
     // convert binary data to base64 encoded string
     return Buffer.from(bitmap).toString('base64');
 }
 
-const main = function () {
+const main = function() {
     // check resources
     let resources = "./Resources";
     if (!fs.existsSync(resources)) { consoe.log("!fs.existsSync(resources)"); return; }
@@ -119,16 +119,23 @@ const main = function () {
         let rare = parseInt(cardsData[id][7]);
         let classId = parseInt(cardsData[id][2]);
         let sortGroupID = classData[classId] ? parseInt(classData[classId][39]) : 0;
+        let placeType = classData[classId] ? parseInt(classData[classId][41]) : 0;
         let kind = parseInt(cardsData[id][6]);
-        let isEvent = (parseInt(cardsData[id][48]) <= 15) ? 1 : 0;  // _TradePoint
+        let isEvent = (parseInt(cardsData[id][48]) <= 15) ? 1 : 0; // _TradePoint
         let assign = parseInt(cardsData[id][60]);
         let genus = parseInt(cardsData[id][61]);
-        let identity = parseInt(cardsData[id][62]);
+        // let identity = parseInt(cardsData[id][62]);
 
         switch (rare) {
-            case 11: rare = 5.1; break;
-            case 10: rare = 4.1; break;
-            case 7: rare = 3.5; break;
+            case 11:
+                rare = 5.1;
+                break;
+            case 10:
+                rare = 4.1;
+                break;
+            case 7:
+                rare = 3.5;
+                break;
         }
 
         // skip who not a unit
@@ -141,8 +148,17 @@ const main = function () {
         if (sortGroupID == 10) continue;
 
         let obj = {
-            id, name, rare, classId, sortGroupID,
-            kind, isEvent, assign, genus, identity,
+            id,
+            name,
+            rare,
+            classId,
+            sortGroupID,
+            placeType,
+            kind,
+            isEvent,
+            assign,
+            genus,
+            // identity,
             img: "data:image/png;base64," + encodeBase64(iconPath),
         };
         // resultJson.push(obj);
@@ -159,5 +175,5 @@ const main = function () {
     fs.writeFileSync("./html/cards.js", cardsJs.join("\n"));
     console.log("fs.writeFileSync( cards.js )");
 
-}; main();
-
+};
+main();
