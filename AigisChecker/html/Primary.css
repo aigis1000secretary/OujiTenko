@@ -1,0 +1,68 @@
+.mainbody {
+    margin-left: auto;
+    margin-right: auto;
+    width: 960px;
+}
+
+.Layout_header {
+    background-color: Yellow;
+    width: 100%;
+    height: 100px;
+}
+
+.Layout_Mainblock {
+    max-width: 70%;
+    /* height: 400px; */
+    /* background-color: green; */
+    float: left;
+}
+
+
+/* .Layout_Iconarea { */
+
+.iconbox {
+    width: 75%;
+    padding: 5px 0px 5px 0px;
+    float: right;
+    background-color: white;
+    border: 6px solid #ddeaff;
+    border-radius: 4px;
+}
+
+hr {
+    height: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: solid;
+    border-color: rgb(221, 234, 255);
+}
+
+.icon {
+    margin: 0px 5px 0px 5px;
+}
+
+.Layout_Sideblock {
+    max-width: 30%;
+    /* height: 400px; */
+    background-color: cadetblue;
+    float: left;
+}
+
+.sidebox {
+    width: 100%;
+    padding: 3px 5px 5px 5px;
+    /* float: right; */
+    /* background-color: white; */
+    border: 6px;
+}
+
+a {
+    font-size: 11px;
+}
+
+.sharebox {
+    margin: 0px;
+    width: 232px;
+    height: 114px;
+    max-width: 100%;
+}

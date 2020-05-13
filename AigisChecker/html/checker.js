@@ -1,6 +1,6 @@
 const styleUnChecked = "opacity:0.4;";
 const styleChecked = "opacity:1.0;";
-const styleSize = "75";
+const styleSize = "50";
 
 // url parameter method
 function _atob(base32Str) {
@@ -12,6 +12,7 @@ function _atob(base32Str) {
     }
     return base2Str;
 }
+
 function _btoa(base2Str) {
     let base32Str = "";
     while (base2Str.length > 0) {
@@ -21,6 +22,7 @@ function _btoa(base2Str) {
     }
     return base32Str;
 }
+
 function getUrlFlags() {
     // URL obj
     let url = new URL(document.URL);
@@ -32,6 +34,7 @@ function getUrlFlags() {
     // return flag list
     return urlData ? _atob(urlData) : "";
 }
+
 function setUrlFlags(flagList) {
     // URL obj
     let url = new URL(document.URL);
@@ -44,6 +47,7 @@ function setUrlFlags(flagList) {
     params.set("data", urlData);
     history.pushState(null, null, url);
 }
+
 function getIconFlags() {
     // read flag from iconbox
     let l = Math.ceil(maxCid / 5) * 5;
@@ -61,8 +65,9 @@ function getIconFlags() {
     }
 
     // make flag list
-    return flagArray.join("");  // .replace(/$0*/, "")
+    return flagArray.join(""); // .replace(/$0*/, "")
 }
+
 function setIconFlags(flagList) {
     // make flag list
     let flagArray = flagList.split("");
@@ -102,7 +107,7 @@ function init() {
 
         icon.alt = "false";
         icon.style = icon.alt == "true" ? styleChecked : styleUnChecked;
-        icon.addEventListener("click", function (e) {
+        icon.addEventListener("click", function(e) {
             this.alt = this.alt == "true" ? "false" : "true";
             this.style = this.alt == "true" ? styleChecked : styleUnChecked;
             // set url data
@@ -117,7 +122,7 @@ function init() {
 }
 
 // return By Rare
-function returnByRare() {
+function setHr() {
     let iconbox = document.getElementsByClassName("iconbox")[0];
     bFlag = false;
     for (let i = 0; i < iconbox.childElementCount; ++i) {
@@ -127,11 +132,17 @@ function returnByRare() {
 
         let aData = charaData.find(obj => obj && obj.id == a.id);
         let bData = charaData.find(obj => obj && obj.id == b.id);
+        if (!aData || !bData) continue;
 
-        if ((aData && bData) && aData.rare != bData.rare) {
-            let br = document.createElement("br");
+        if (aData.rare != bData.rare) {
+            let br = document.createElement("hr");
             a.parentNode.insertBefore(br, b);
         }
+
+        // if (aData.kind != bData.kind) {
+        //     let br = document.createElement("hr");
+        //     a.parentNode.insertBefore(br, b);
+        // }
     }
 };
 
@@ -148,6 +159,7 @@ function sortByDate(ascending) {
 
     init();
 };
+
 function sortByRare(ascending) {
     $(".iconbox").empty();
 
@@ -168,8 +180,9 @@ function sortByRare(ascending) {
     })
 
     init();
-    returnByRare();
+    setHr();
 };
+
 function sortByClass(ascending) {
     $(".iconbox").empty();
 
