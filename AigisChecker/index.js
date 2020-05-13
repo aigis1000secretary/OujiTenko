@@ -14,7 +14,6 @@ let getFileList = function(dirPath) {
     }
     return result;
 };
-
 let rawDataToCsv = function(rawPath, csvPath) {
     let raw = fs.readFileSync(rawPath).toString();
     let row0;
@@ -61,7 +60,6 @@ let rawDataToCsv = function(rawPath, csvPath) {
     }
     return result;
 };
-
 let encodeBase64 = function(file) {
     // read binary data
     var bitmap = fs.readFileSync(file);
@@ -126,6 +124,7 @@ const main = function() {
         let genus = parseInt(cardsData[id][61]);
         // let identity = parseInt(cardsData[id][62]);
 
+        // Hero rare
         switch (rare) {
             case 11:
                 rare = 5.1;
@@ -146,6 +145,35 @@ const main = function() {
         if (sellPrice == 0) continue;
         // skip seirei
         if (sortGroupID == 10) continue;
+        // skip Non-R18 Collaboration
+        if (assign == 4 || assign == 7) continue;
+        switch (id) {
+            case 497:
+                name += "（遠国の近衛兵）";
+                break;
+            case 498:
+                name += "（遠国の前衛戦術家）";
+                break;
+            case 499:
+                name += "（遠国の弓兵）";
+                break;
+            case 501:
+                name += "（遠国の公子）";
+                break;
+
+            case 684:
+                name += "（異郷の槌使い）";
+                break;
+            case 685:
+                name += "（異郷の盗賊）";
+                break;
+            case 687:
+                name += "（異郷の騎士）";
+                break;
+            case 688:
+                name += "（異郷の妖精）";
+                break;
+        }
 
         let obj = {
             id,
@@ -157,8 +185,7 @@ const main = function() {
             kind,
             isEvent,
             assign,
-            genus,
-            // identity,
+            genus, // identity,
             img: "data:image/png;base64," + encodeBase64(iconPath),
         };
         // resultJson.push(obj);
