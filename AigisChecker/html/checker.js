@@ -94,7 +94,7 @@ function setIconFlags(flagList) {
         icon.alt = flag;
         icon.style = icon.alt == "true" ? styleChecked : styleUnChecked;
     }
-}
+};
 
 // init method
 function init() {
@@ -117,8 +117,8 @@ function init() {
             this.alt = this.alt == "true" ? "false" : "true";
             this.style = this.alt == "true" ? styleChecked : styleUnChecked;
             // set url data
-            flagList = getIconFlags()
-            setUrlFlags(flagList)
+            flagList = getIconFlags();
+            setUrlFlags(flagList);
         }, false);
         iconbox.appendChild(icon);
     }
@@ -274,4 +274,32 @@ function sortByGenus() {
 
     init();
     setHr("genus");
+};
+
+// selector
+function filter(checkbox) {
+    let key = checkbox.name;
+    let value = checkbox.alt;
+
+    for (let i in charaData) {
+        let obj = charaData[i];
+
+        if (obj[key] == undefined) break; // continue;    // ?
+        if (obj[key] != value) continue;
+
+        let icon = document.getElementById(obj.id);
+        icon.alt = checkbox.checked ? "false" : "true";
+        icon.style = icon.alt == "true" ? styleChecked : styleUnChecked;
+    }
+
+    flagList = getIconFlags();
+    setUrlFlags(flagList);
+};
+// undo method
+let urlHistory = [];
+
+function undo() {
+
+
+    flagList = getIconFlags()
 };

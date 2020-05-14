@@ -203,6 +203,8 @@ const main = function() {
         // skip token
         let sellPrice = parseInt(cardsData[id][11]);
         if (sellPrice == 0) continue;
+        // skip low rare
+        if (rare <= 1) continue;
         // skip seirei
         if (sortGroupID == 10) continue;
         // skip Non-R18 Collaboration
