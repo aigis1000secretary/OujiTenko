@@ -124,7 +124,7 @@ const main = function() {
         let genus = parseInt(cardsData[id][61]);
         // let identity = parseInt(cardsData[id][62]);
 
-        // Hero rare
+        // Hero rare data format
         switch (rare) {
             case 11:
                 rare = 5.1;
@@ -137,17 +137,39 @@ const main = function() {
                 break;
         }
 
-        // skip who not a unit
-        let skipList = [1];
-        if (skipList.indexOf(id) != -1) continue;
-        // skip token
-        let sellPrice = parseInt(cardsData[id][11]);
-        if (sellPrice == 0) continue;
-        // skip seirei
-        if (sortGroupID == 10) continue;
-        // skip Non-R18 Collaboration
-        if (assign == 4 || assign == 7) continue;
+        // Collaboration data format
         switch (id) {
+
+            case 581: // ランス10-決戦-
+                assign = -1;
+                break;
+            case 648: // 真・恋姫†夢想-革命
+            case 649:
+            case 650:
+            case 651:
+            case 652:
+            case 848:
+            case 849:
+            case 850:
+            case 851:
+            case 852:
+                assign = -2;
+                break;
+            case 719: //  封緘のグラセスタ
+            case 720:
+                assign = -3;
+                break;
+            case 815: //  ガールズ・ブック・メイカー（GBM）
+            case 816:
+            case 817:
+            case 818:
+                assign = -4;
+                break;
+            case 955: //  流星ワールドアクター
+            case 956:
+                assign = -5;
+                break;
+
             case 497:
                 name += "（遠国の近衛兵）";
                 break;
@@ -174,6 +196,17 @@ const main = function() {
                 name += "（異郷の妖精）";
                 break;
         }
+
+        // skip who not a unit
+        let skipList = [1];
+        if (skipList.indexOf(id) != -1) continue;
+        // skip token
+        let sellPrice = parseInt(cardsData[id][11]);
+        if (sellPrice == 0) continue;
+        // skip seirei
+        if (sortGroupID == 10) continue;
+        // skip Non-R18 Collaboration
+        if (assign == 4 || assign == 7) continue;
 
         let obj = {
             id,

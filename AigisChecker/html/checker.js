@@ -31,6 +31,12 @@ function getUrlFlags() {
     // get url data
     let urlData = params.get("data");
 
+    // sharebox
+    if (urlData.replace(/0/g, "") != "") {
+        let sharebox = document.getElementById("sharebox");
+        sharebox.textContent = url;
+    } else { sharebox.textContent = "ここに共有する内容が表示されます" }
+
     // return flag list
     return urlData ? _atob(urlData) : "";
 }
@@ -47,9 +53,11 @@ function setUrlFlags(flagList) {
     params.set("data", urlData);
     history.pushState(null, null, url);
 
-
-    let sharebox = document.getElementById("sharebox");
-    sharebox.textContent = url;
+    // sharebox
+    if (urlData.replace(/0/g, "") != "") {
+        let sharebox = document.getElementById("sharebox");
+        sharebox.textContent = url;
+    } else { sharebox.textContent = "ここに共有する内容が表示されます" }
 }
 
 function getIconFlags() {
@@ -98,7 +106,7 @@ function init() {
         let icon = document.createElement("img");
         icon.className = "icon";
         icon.id = charaData[i].id;
-        icon.title = charaData[i].name;
+        icon.title = charaData[i].name + charaData[i].placeType;
         icon.src = charaData[i].img;
         icon.width = styleSize;
         icon.height = styleSize;
@@ -142,6 +150,9 @@ function setHr(type) {
                 let br = document.createElement("hr");
                 a.parentNode.insertBefore(br, b);
             }
+        } else if (aData[type] != undefined && bData[type] != undefined && (aData[type] != bData[type])) {
+            let br = document.createElement("hr");
+            a.parentNode.insertBefore(br, b);
         }
     }
 };
@@ -187,6 +198,9 @@ function sortByClass(ascending) {
     $(".iconbox").empty();
 
     charaData.sort(function compare(a, b) {
+        // sort by placeType
+        if (a.placeType != b.placeType) return (a.placeType < b.placeType) ? -1 : 1;
+
         // sort by class
         if (a.classId != b.classId) return (!!ascending == (a.classId < b.classId)) ? -1 : 1;
 
@@ -204,4 +218,60 @@ function sortByClass(ascending) {
 
     init();
     setHr("class");
+};
+
+function sortByKind() {
+    $(".iconbox").empty();
+
+    charaData.sort(function compare(a, b) {
+        // sort by kind
+        if (a.kind != b.kind) return (a.kind < b.kind) ? -1 : 1;
+
+        return 0;
+    })
+
+    init();
+    setHr("kind");
+};
+
+function sortByEvent() {
+    $(".iconbox").empty();
+
+    charaData.sort(function compare(a, b) {
+        // sort by isEvent
+        if (a.isEvent != b.isEvent) return (a.isEvent > b.isEvent) ? -1 : 1;
+
+        return 0;
+    })
+
+    init();
+    setHr("isEvent");
+};
+
+function sortByAssign() {
+    $(".iconbox").empty();
+
+    charaData.sort(function compare(a, b) {
+        // sort by assign
+        if (a.assign != b.assign) return (a.assign < b.assign) ? -1 : 1;
+
+        return 0;
+    })
+
+    init();
+    setHr("assign");
+};
+
+function sortByGenus() {
+    $(".iconbox").empty();
+
+    charaData.sort(function compare(a, b) {
+        // sort by isEvent
+        if (a.genus != b.genus) return (a.genus > b.genus) ? -1 : 1;
+
+        return 0;
+    })
+
+    init();
+    setHr("genus");
 };

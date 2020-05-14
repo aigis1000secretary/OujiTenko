@@ -2,6 +2,8 @@
     margin-left: auto;
     margin-right: auto;
     width: 960px;
+    font-size: 12px;
+    font-family: "-apple-system", BlinkMacSystemFont, "Yu Gothic Medium", "游ゴシック Medium", YuGothic, "游ゴシック体", "Noto Sans Japanese", "ヒラギノ角ゴ Pro W3", "メイリオ", "Hiragino Kaku Gothic ProN", "MS PGothic", Osaka, "sans-serif";
 }
 
 .Layout_header {
@@ -15,14 +17,14 @@
     float: left;
     max-width: 70%;
     /* height: 400px; */
-    background-color: darkcyan;
+    /* background-color: darkcyan; */
 }
 
 .Layout_Sideblock {
     float: left;
     max-width: 30%;
     /* height: 400px; */
-    background-color: cadetblue;
+    /* background-color: cadetblue; */
 }
 
 
@@ -36,32 +38,78 @@
     padding: 10px 5px 5px 5px;
 }
 
-hr {
+.iconbox hr {
     margin-left: 10px;
     margin-right: 10px;
     border: solid;
     border-color: rgb(221, 234, 255);
 }
 
-.icon {
+.iconbox .icon {
     margin: 2px 5px 0px 5px;
 }
+
+
+/* Layout_Sideblock */
 
 .sidebox {
     float: left;
     max-width: 100%;
-    padding: 3px 5px 5px 5px;
+    padding: 3px 5px 5px 7px;
 }
 
-a {
-    font-size: 11px;
-    font-family: verdana, arial, helvetica, sans-serif;
-}
-
-textarea {
-    /* margin: 0px; */
+.sidebox #sharebox {
     width: 270px;
-    max-width: 270px;
     height: 120px;
+    max-width: 270px;
     min-height: 20px;
+}
+
+.sidebox .filterbox {
+    border-left: 2px #003C9D solid;
+    border-top: 2px #003C9D solid;
+    border-top-left-radius: 7px;
+    margin: 2px 0px 5px 0px;
+    padding: 1px 0px 1px 2px;
+}
+
+.sidebox input[type="button"] {
+    cursor: pointer;
+    height: 26px;
+    color: #fff;
+    background-color: #003C9D;
+    border: 2px #003C9D solid;
+    border-radius: 10px;
+    margin: 1px 0px 1px 0px;
+    padding: 1px 6px 1px 6px;
+}
+
+.sidebox input[type="button"]:hover {
+    color: #003C9D;
+    background-color: #fff;
+}
+
+.sidebox input[type="checkbox"] {
+    display: none;
+}
+
+.sidebox input[type="checkbox"]+label span {
+    display: inline-block;
+    cursor: pointer;
+    height: 17px;
+    border: 2px #003C9D solid;
+    border-radius: 10px;
+    margin: 1px 0px 1px 0px;
+    padding: 1px 6px 1px 6px;
+    color: #fff;
+    background-color: #003C9D;
+}
+
+.sidebox input[type="checkbox"]:checked+label span {
+    text-decoration: line-through;
+}
+
+.sidebox input[type="checkbox"]+label span:hover {
+    color: #003C9D;
+    background-color: #fff;
 }

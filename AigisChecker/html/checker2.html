@@ -25,62 +25,93 @@
             </div>
         </div>
         <div class=Layout_Sideblock>
+
             <div class=sidebox>
                 <a itemprop="url" href="https://twitter.com/Aigis1000/" target="_blank">▼千年戦争アイギスtwitter公式アカウント</a><br>
                 <a itemprop="url" href="http://aigis1000.jp/" target="_blank">▼千年戦争アイギスA公式サイト</a><br>
                 <a itemprop="url" href="https://www.youtube.com/channel/UCl8iPEgu_N6iEYGYoWXc3gA" target="_blank">▼
                     YouTube「千年戦争アイギス」公式チャンネル</a><br>
             </div>
+
             <div class=sidebox>
-                所有率を共有
+                <div class=text>所有率を共有 </div>
                 <textarea id="sharebox">ここに共有する内容が表示されます</textarea>
             </div>
+
             <div class=sidebox>
-
-                <button type='button' id='btn-sort' onclick="sortByRare(true)"> Sort by Rare (↗) </button>
-                <button type='button' id='btn-sort' onclick="sortByRare(false)"> (↘) </button>
+                <span class="text">ソート</span> <br>
+                <input type=button onclick="sortByRare(true);   " value="レア順（↗）">
+                <input type=button onclick="sortByRare(false);  " value="（↘）">
                 <br>
-                <button type='button' id='btn-sort' onclick="sortByDate(true)"> Sort by Date (↗) </button>
-                <button type='button' id='btn-sort' onclick="sortByDate(false)"> (↘) </button>
+                <input type=button onclick="sortByDate(true);   " value="実装順（↗）">
+                <input type=button onclick="sortByDate(false);  " value="（↘）">
                 <br>
-                <button type='button' id='btn-sort' onclick="sortByClass(true)"> Sort by Class (↗) </button>
-                <button type='button' id='btn-sort' onclick="sortByClass(false)"> (↘) </button>
+                <input type=button onclick="sortByClass(true);  " value="クラス順（↗）">
+                <input type=button onclick="sortByClass(false); " value="（↘）">
                 <br>
-
+                <span class="text">属性別</span> <br>
+                <input type=button onclick="sortByKind();       " value="性別">
+                <input type=button onclick="sortByEvent();      " value="入手先">
+                <input type=button onclick="sortByAssign();     " value="所属">
+                <input type=button onclick="sortByGenus();      " value="節分">
             </div>
-            <div class=sidebox>
-                <br> 所有率: 0％（0/999）
-                <br> 近距離: 0％（0/999）
-                <br> 遠距離: 0％（0/999）
-                <br> 男性: 0％（0/999）
-                <br> 女性: 0％（0/999）
-                <br> イベント 0％（0/999）
-                <br> ガチャ 0％（0/999）
 
-                <br> 王国 0％（0/999）
-                <br> 白の帝国 0％（0/999）
-                <br> アルスラーン戦記（遠国） 0％（0/999）
-                <br> 砂漠の国 0％（0/999）
-                <br> 七つの大罪（異郷） 0％（0/999）
-                <br> 東の国 0％（0/999）
-
-                <br> お正月 0％（0/999）
-                <br> バレンタイン 0％（0/999）
-                <br> 学園 0％（0/999）
-                <br> ジューンブライド 0％（0/999）
-                <br> サマー 0％（0/999）
-                <br> ハロウィン 0％（0/999）
-                <br> 聖夜 0％（0/999）
-                <br> ちび 0％（0/999）
-                <br> 温泉 0％（0/999）
-
+            <div class=sidebox hidden=true>
+                <span class="text ">一括選択/解除</span> <br>
+                <div class=filterbox>
+                    <!-- placeType -->
+                    <input type=checkbox id="f11 " onclick="filter(); " /><label for="f11 "><span>近接</span></label>
+                    <input type=checkbox id="f12 " onclick="filter(); " /><label for="f12 "><span>遠隔</span></label>
+                </div>
+                <div class=filterbox>
+                    <!-- rare -->
+                    <input type=checkbox id="f21 " onclick="filter(); " /><label for="f21 "><span>ブラック</span></label>
+                    <input type=checkbox id="f22 " onclick="filter(); " /><label for="f22 "><span>プラチナ</span></label>
+                    <input type=checkbox id="f23 " onclick="filter(); " /><label for="f23 "><span>サファイア</span></label>
+                    <input type=checkbox id="f24 " onclick="filter(); " /><label for="f24 "><span>ゴールド</span></label>
+                    <input type=checkbox id="f25 " onclick="filter(); " /><label for="f25 "><span>シルバー</span></label>
+                    <input type=checkbox id="f26 " onclick="filter(); " /><label for="f26 "><span>ブロンズ</span></label>
+                    <input type=checkbox id="f27 " onclick="filter(); " /><label for="f27 "><span>アイアン</span></label>
+                </div>
+                <div class=filterbox>
+                    <!-- kind -->
+                    <input type=checkbox id="f31 " onclick="filter(); " /><label for="f31 "><span>男性</span></label>
+                    <input type=checkbox id="f32 " onclick="filter(); " /><label for="f32 "><span>女性</span></label>
+                </div>
+                <div class=filterbox>
+                    <!-- event -->
+                    <input type=checkbox id="f41 " onclick="filter(); " /><label for="f41 "><span>イベント</span></label>
+                    <input type=checkbox id="f42 " onclick="filter(); " /><label for="f42 "><span>ガチャ</span></label>
+                </div>
+                <div class=filterbox>
+                    <!-- assign -->
+                    <input type=checkbox id="f51 " onclick="filter(); " /><label for="f51 "><span>王国</span></label>
+                    <input type=checkbox id="f52 " onclick="filter(); " /><label for="f52 "><span>白の帝国</span></label>
+                    <input type=checkbox id="f53 " onclick="filter(); " /><label for="f53 "><span>アルスラーン戦記（遠国）</span></label>
+                    <input type=checkbox id="f54 " onclick="filter(); " /><label for="f54 "><span>砂漠の国</span></label>
+                    <input type=checkbox id="f55 " onclick="filter(); " /><label for="f55 "><span>七つの大罪（異郷）</span></label>
+                    <input type=checkbox id="f56 " onclick="filter(); " /><label for="f56 "><span>東の国</span></label>
+                    <input type=checkbox id="f57 " onclick="filter(); " /><label for="f57 "><span>ランス10-決戦-</span></label>
+                    <input type=checkbox id="f58 " onclick="filter(); " /><label for="f58 "><span>真・恋姫†夢想-革命（恋姫）</span></label>
+                    <input type=checkbox id="f59 " onclick="filter(); " /><label for="f59 "><span>封緘のグラセスタ（封緘）</span></label>
+                    <input type=checkbox id="f5a " onclick="filter(); " /><label for="f5a "><span>ガールズ・ブック・メイカー（GBM）</span></label>
+                    <input type=checkbox id="f5b " onclick="filter(); " /><label for="f5b "><span>流星ワールドアクター（流星WA）</span></label>
+                </div>
+                <div class=filterbox>
+                    <!-- genus -->
+                    <input type=checkbox id="f61 " onclick="filter(); " /><label for="f61 "><span>お正月</span></label>
+                    <input type=checkbox id="f62 " onclick="filter(); " /><label for="f62 "><span>バレンタイン</span></label>
+                    <input type=checkbox id="f63 " onclick="filter(); " /><label for="f63 "><span>学園</span></label>
+                    <input type=checkbox id="f64 " onclick="filter(); " /><label for="f64 "><span>ジューンブライド</span></label>
+                    <input type=checkbox id="f65 " onclick="filter(); " /><label for="f65 "><span>サマー</span></label>
+                    <input type=checkbox id="f66 " onclick="filter(); " /><label for="f66 "><span>ハロウィン</span></label>
+                    <input type=checkbox id="f67 " onclick="filter(); " /><label for="f67 "><span>聖夜</span></label>
+                    <input type=checkbox id="f68 " onclick="filter(); " /><label for="f68 "><span>ちび</span></label>
+                    <input type=checkbox id="f69 " onclick="filter(); " /><label for="f69 "><span>温泉</span></label>
+                </div>
             </div>
         </div>
     </div>
-
-
-    <!-- <label class="iconbox">
-    </label> -->
 
 </body>
 
