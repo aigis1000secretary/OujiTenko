@@ -1,9 +1,9 @@
 
 @cd ./LocalProxy
-@start node index.js
-
 @echo set proxy 127.0.0.1:8000
 @echo login aigis
+@node index.js
+
 @pause
 
 @start AigisTools.bat
@@ -16,7 +16,7 @@
 @pause
 
 @cd ../AigisChecker
-@start node index.js
+@node index.js
 
 @echo done!!
 @pause
