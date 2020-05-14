@@ -32,7 +32,7 @@ function getUrlFlags() {
     let urlData = params.get("data");
 
     // sharebox
-    if (urlData.replace(/0/g, "") != "") {
+    if (urlData && urlData.replace(/0/g, "") != "") {
         let sharebox = document.getElementById("sharebox");
         sharebox.textContent = url;
     } else { sharebox.textContent = "ここに共有する内容が表示されます" }
@@ -278,6 +278,9 @@ function sortByGenus() {
 
 // selector
 function filter(checkbox) {
+    // get backup
+    let flagList = getIconFlags();
+
     let key = checkbox.name;
     let value = checkbox.alt;
 
@@ -292,14 +295,21 @@ function filter(checkbox) {
         icon.style = icon.alt == "true" ? styleChecked : styleUnChecked;
     }
 
-    flagList = getIconFlags();
-    setUrlFlags(flagList);
+
+    // set url data
+    let newList = getIconFlags();
+    setUrlFlags(newList);
+    // backup
+    if (newList != flagList) {
+        urlHistory.push(flagList);
+    }
 };
 // undo method
 let urlHistory = [];
 
 function undo() {
-
-
-    flagList = getIconFlags()
+    let flagList = urlHistory.pop();
+    if (!flagList) return;
+    setUrlFlags(flagList);
+    setIconFlags(flagList);
 };
