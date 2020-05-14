@@ -196,6 +196,9 @@ const main = function() {
                 name += "（異郷の妖精）";
                 break;
         }
+        if (name.indexOf("王子") != -1) {
+            rare = 5.2;
+        }
 
         // skip who not a unit
         let skipList = [1];

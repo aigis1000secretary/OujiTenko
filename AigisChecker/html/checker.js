@@ -106,7 +106,7 @@ function init() {
         let icon = document.createElement("img");
         icon.className = "icon";
         icon.id = charaData[i].id;
-        icon.title = charaData[i].name + charaData[i].placeType;
+        icon.title = charaData[i].name;
         icon.src = charaData[i].img;
         icon.width = styleSize;
         icon.height = styleSize;
