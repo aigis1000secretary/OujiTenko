@@ -65,7 +65,7 @@ function getIconFlags() {
     let l = Math.ceil(maxCid / 5) * 5;
     let flagArray = new Array(l).fill("0");
     let maxIndex = 0;
-    let iconList = document.getElementsByClassName("iconbox")[0].getElementsByClassName("icon");
+    let iconList = document.getElementById("iconbox").getElementsByClassName("icon");
     for (let i in iconList) {
         let icon = iconList[i];
         let id = icon.id;
@@ -85,7 +85,7 @@ function setIconFlags(flagList) {
     let flagArray = flagList.split("");
 
     // set flag to iconbox
-    let iconbox = document.getElementsByClassName("iconbox")[0];
+    let iconbox = document.getElementById("iconbox");
     for (let i in iconbox.children) {
         let icon = iconbox.children[i];
         let id = icon.id;
@@ -98,7 +98,7 @@ function setIconFlags(flagList) {
 
 // init method
 function init() {
-    let iconbox = document.getElementsByClassName("iconbox")[0];
+    let iconbox = document.getElementById("iconbox");
 
     for (let i in charaData) {
         if (charaData[i] == null) continue;
@@ -129,7 +129,7 @@ function init() {
 
 // hr method
 function setHr(type) {
-    let iconbox = document.getElementsByClassName("iconbox")[0];
+    let iconbox = document.getElementById("iconbox");
     bFlag = false;
     for (let i = 0; i < iconbox.childElementCount; ++i) {
         let a = iconbox.children[i];
