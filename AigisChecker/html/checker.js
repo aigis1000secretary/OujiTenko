@@ -313,3 +313,12 @@ function undo() {
     setUrlFlags(flagList);
     setIconFlags(flagList);
 };
+
+// html result to image
+function openImage() {
+    html2canvas(document.getElementById("iconbox")).then(function(canvas) {
+        var image = new Image();
+        image.src = canvas.toDataURL("image/png");
+        window.open().document.write('<img src="' + image.src + '" />');
+    });
+}
